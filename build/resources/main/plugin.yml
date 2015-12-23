@@ -1,0 +1,8 @@
+name: SimpleCoins
+version: 1.0.0
+main: de.lalo5.simplecoins.SimpleCoins
+website: http://dev.bukkit.org/bukkit-plugins/simplecoins/
+commands:
+  sc:
+    description: Main command
+    usage: /sc
