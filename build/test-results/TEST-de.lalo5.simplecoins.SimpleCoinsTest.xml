@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="de.lalo5.simplecoins.SimpleCoinsTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2015-12-23T10:56:21" hostname="Axel-Laptop" time="0.048">
+<testsuite name="de.lalo5.simplecoins.SimpleCoinsTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2015-12-23T15:50:56" hostname="Axel-Laptop" time="0.089">
   <properties/>
   <testcase name="testOnCommand" classname="de.lalo5.simplecoins.SimpleCoinsTest" time="0.002"/>
-  <testcase name="testOnDisable" classname="de.lalo5.simplecoins.SimpleCoinsTest" time="0.001"/>
-  <testcase name="testOnEnable" classname="de.lalo5.simplecoins.SimpleCoinsTest" time="0.044"/>
+  <testcase name="testOnDisable" classname="de.lalo5.simplecoins.SimpleCoinsTest" time="0.0"/>
+  <testcase name="testOnEnable" classname="de.lalo5.simplecoins.SimpleCoinsTest" time="0.086"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

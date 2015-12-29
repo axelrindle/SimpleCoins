@@ -28,21 +28,25 @@ public class SqlManager {
 
     protected void connect() throws SQLException {
         String url = "jdbc:mysql://" + host + ":" + port + "/" + databasename;
-        SimpleCoins.log.info(SimpleCoins.consoleprefix + url);
         conn = DriverManager.getConnection(url, username, password);
 
+        SimpleCoins.log.info(SimpleCoins.consoleprefix + "Successfully connected to the MySQL database.");
+    }
+
+    protected void createTable() throws SQLException {
         executeStatement(
-                "CREATE TABLE IF NOT EXISTS `minecraft`.`SimpleCoins` " +
-                        "( `UUID` TEXT NOT NULL COMMENT 'Players UUID' ," +
-                        " `Name` TEXT NOT NULL COMMENT 'Players Name' ," +
-                        " `Coins` INT NOT NULL COMMENT 'Players Coins' ) " +
-                        "ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci " +
-                        "COMMENT = 'SimpleCoins Coin Storage';"
+                "CREATE TABLE IF NOT EXISTS `minecraft`.`" + tablename + "` " +
+                        "( `UUID` TEXT NOT NULL COMMENT 'Players UUID' , " +
+                        "`Name` TEXT NOT NULL COMMENT 'Players Name' , " +
+                        "`Coins` INT NOT NULL COMMENT 'Players amount of coins' , " +
+                        "UNIQUE `UUID` (`UUID`(36))) " +
+                        "ENGINE = InnoDB CHARSET=utf8 COLLATE utf8_general_ci COMMENT = 'SimpleCoins account storage';"
         );
     }
 
     protected void closeConnection() throws SQLException {
         conn.close();
+        SimpleCoins.log.info(SimpleCoins.consoleprefix + "Successfully disconnected from the MySQL database.");
     }
 
     protected void executeStatement(String command) throws SQLException {

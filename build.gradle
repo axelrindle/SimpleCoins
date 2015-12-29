@@ -12,19 +12,8 @@ sourceSets {
     test.java.srcDir("src/test")
 }
 
-libsDirName = '../../../../Desktop/Minecraft/MC Localhost/plugins'
-
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
 
     compile fileTree(dir: 'libs', include: '*.jar')
 }
-
-task runCraftBukkit(type:Exec) {
-    doFirst {
-        println "Starting Spigot server..."
-        workingDir = file('C:/Users/Axel/Desktop/Minecraft/MC Localhost/')
-        commandLine = ['cmd', '/C', 'start', 'start.bat']
-    }
-}
-jar.finalizedBy runCraftBukkit
