@@ -1,0 +1,69 @@
+# This is the SimpleCoins configuration file.
+# 
+# Here you can configure EVERY aspect of the plugin.
+# This includes the name of the coins (default is Coins), every message
+# 
+# 
+#
+#
+# The name of your currency
+CoinsName: Coins
+
+# Database Connection Settings
+Database:
+  # Should we use a MySQL Database or a local file?
+  UseSQL: false
+  
+  # Database Host
+  Host: localhost
+  
+  # Database Port
+  Port: 3306
+  
+  # Database in which the table will be created
+  DatabaseName: minecraft
+  
+  # Table in which the account will be stored
+  TableName: SimpleCoins
+  
+  # The username to connect with
+  Username: username
+  
+  # The password to authentificate the user
+  Password: password
+  
+# Configurable message (more to come)
+# You may use the following placeholders in messages:
+# 
+# %amountrec% : Amount of received coins (Only in add/remove) 
+# %amount% : Amount of coins in account (Everywhere) 
+# %playername% : Name of the player (Player who received or who executed /sc get) 
+# %otherplayername% : Name of the (Specified in /sc get <player>) 
+# %coinname% : Name of the coins 
+# 
+# Use & + 1-9/a-f for colors. 
+Messages:
+
+  # Message when someone receives coins
+  Coins_Received: '&aHey, &6%playername%&a! &aYou just received &3%amountrec% &9%coinname%
+    &aand now you have &3%amount%&a!'
+    
+  # Message when someone lose coins
+  Coins_Taken: '&aHey, &6%playername%&a! &cYou were take &3%amountrec% &cand have
+    now &3%amount% &9%coinname%&c!'
+  
+  # Message when the coins are set to a specific amount
+  Coins_Set: '&aHey, &6%playername%&a! &cSomeone set your &9%coinname% &cto &3%amount%&c!'
+  
+  # Message when you retrieve your own coin amount
+  Coins_Get_Self: '&aHey, &6%playername%&a! &aYou have &3%amount% &9%coinname%&a!'
+  
+  # Message when you retrieve the coin amount of someone else
+  Coins_Get_Other: '&aHey, &6%playername%&a! &aThe player &6%otherplayername% &ahas
+    &3%amount% &9%coinname%&a!'
+
+  # Message for reload
+  Reload: '&aSuccessfully reloaded!'
+
+  # Message for no permission
+  NoPermission: '&cYou are not allowed to do this!'
