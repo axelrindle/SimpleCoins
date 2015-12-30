@@ -69,7 +69,7 @@ public class SimpleCoins extends JavaPlugin {
             log.info(consoleprefix + "Something went wrong while loading! DISABLING...");
             Bukkit.getPluginManager().disablePlugin(this);
         } catch (SQLException e) {
-            log.info(consoleprefix + "Couldn't connect to MySQL database! DISABLING...");
+            log.severe(consoleprefix + "Couldn't connect to MySQL database! DISABLING...");
             cfg.set("Database.UseSQL", false);
             saveCConfig();
             loaded = false;

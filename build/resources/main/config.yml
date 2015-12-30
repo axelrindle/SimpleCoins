@@ -9,6 +9,9 @@
 # The name of your currency
 CoinsName: Coins
 
+# Should we implement Vault support?
+UseVault: true
+
 # Database Connection Settings
 Database:
   # Should we use a MySQL Database or a local file?
