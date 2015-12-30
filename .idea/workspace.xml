@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e984f0b1-50f4-4798-8610-08abc0528ed7" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SimpleCoins.iml" afterPath="$PROJECT_DIR$/SimpleCoins.iml" />
-    </list>
+    <list default="true" id="e984f0b1-50f4-4798-8610-08abc0528ed7" name="Default" comment="" />
     <ignored path="SimpleCoins.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/build/classes/" />
