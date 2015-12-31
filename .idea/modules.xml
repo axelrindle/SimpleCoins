@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../NexusGame/NexusGame.iml" filepath="$PROJECT_DIR$/../NexusGame/NexusGame.iml" />
       <module fileurl="file://$PROJECT_DIR$/SimpleCoins.iml" filepath="$PROJECT_DIR$/SimpleCoins.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../NexusGame/nexusgame.iml" filepath="$PROJECT_DIR$/../NexusGame/nexusgame.iml" />
     </modules>
   </component>
 </project>
