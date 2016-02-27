@@ -1,6 +1,7 @@
 package de.lalo5.simplecoins;
 
 import de.lalo5.simplecoins.util.Perms;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,7 +15,7 @@ import java.sql.SQLException;
 /**
  * Created by Axel on 27.12.2015.
  */
-public class MainCMDExecutor implements CommandExecutor {
+public class SCCmd implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -44,6 +45,14 @@ public class MainCMDExecutor implements CommandExecutor {
                                     }
 
                                     CoinManager.addCoins(p_, amount);
+                                    if(SimpleCoins.vaultEnabled) {
+                                        EconomyResponse r = SimpleCoins.econ.depositPlayer(p_, amount);
+                                        if(r.transactionSuccess()) {
+                                            p_.sendMessage(String.format("[Vault] You were given %s and now have %s", SimpleCoins.econ.format(r.amount), SimpleCoins.econ.format(r.balance)));
+                                        } else {
+                                            p_.sendMessage(String.format("[Vault] An error occured: %s", r.errorMessage));
+                                        }
+                                    }
 
                                     String message = SimpleCoins.cfg.getString("Messages.Coins_Received");
                                     message = message.replaceAll("%amountrec%", String.valueOf(amount));

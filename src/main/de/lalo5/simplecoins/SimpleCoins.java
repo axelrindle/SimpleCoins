@@ -26,6 +26,7 @@ import java.util.logging.Logger;
  *
  * Created by Axel on 21.12.2015.
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class SimpleCoins extends JavaPlugin {
 
     protected static String NAME = "SimpleCoins";
@@ -38,6 +39,7 @@ public class SimpleCoins extends JavaPlugin {
     protected static SqlManager sqlManager;
 
     protected static boolean useSQL;
+    public static boolean vaultEnabled;
 
     protected static File configfile;
     protected static FileConfiguration cfg;
@@ -77,17 +79,18 @@ public class SimpleCoins extends JavaPlugin {
         }
 
         if(cfg.getBoolean("UseVault")) {
-            if (!setupEconomy() ) {
-                log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
-                getServer().getPluginManager().disablePlugin(this);
-                return;
-            }
-            setupPermissions();
-            setupChat();
+            if (checkVault()) {
+                setupEconomy();
+                setupChat();
+                setupPermissions();
 
-            getCommand("sc").setExecutor(new MainCMDExecutorWithVault());
-        } else {
-            getCommand("sc").setExecutor(new MainCMDExecutor());
+                vaultEnabled = true;
+            } else {
+                log.severe(String.format("[%s] - Vault not found! Disabling Vault support!", getDescription().getName()));
+                vaultEnabled = false;
+            }
+
+            getCommand("sc").setExecutor(new SCCmd());
         }
 
         if(loaded) {
@@ -115,10 +118,15 @@ public class SimpleCoins extends JavaPlugin {
         log.info(consoleprefix + "Finished!");
     }
 
-    private boolean setupEconomy() {
+    private boolean checkVault() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
         }
+
+        return true;
+    }
+
+    private boolean setupEconomy() {
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
         if (rsp == null) {
             return false;
