@@ -43,7 +43,6 @@ public class SimpleCoins extends JavaPlugin {
 
     protected static File configfile;
     protected static FileConfiguration cfg;
-    private boolean loaded;
 
     public static Economy econ = null;
     public static Permission perms = null;
@@ -53,7 +52,7 @@ public class SimpleCoins extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        loaded = true;
+        boolean loaded = true;
 
         log.info(consoleprefix + "Loading...");
         try {
@@ -86,7 +85,7 @@ public class SimpleCoins extends JavaPlugin {
 
                 vaultEnabled = true;
             } else {
-                log.severe(String.format("[%s] - Vault not found! Disabling Vault support!", getDescription().getName()));
+                log.info(String.format("[%s] - Vault not found! Disabling Vault support!", getDescription().getName()));
                 vaultEnabled = false;
             }
 
@@ -119,11 +118,7 @@ public class SimpleCoins extends JavaPlugin {
     }
 
     private boolean checkVault() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
-
-        return true;
+        return getServer().getPluginManager().getPlugin("Vault") != null;
     }
 
     private boolean setupEconomy() {
@@ -177,12 +172,12 @@ public class SimpleCoins extends JavaPlugin {
 
     private void loadCConfig() throws IOException {
 
-        configfile = new File("plugins/" + NAME + "/config.yml");
+        configfile = new File("plugins/" + NAME + "/resources/config.yml");
         if(!configfile.exists()) {
             Files.createParentDirs(configfile);
             configfile.createNewFile();
 
-            InputStream c = this.getClass().getResourceAsStream("/config.yml");
+            InputStream c = this.getClass().getResourceAsStream("/resources/config.yml");
             FileWriter writer = new FileWriter(configfile);
             IOUtils.copy(c, writer);
             writer.close();

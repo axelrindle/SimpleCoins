@@ -4,6 +4,8 @@ import java.sql.*;
 
 /**
  * Created by Axel on 22.12.2015.
+ *
+ * Project SimpleCoins
  */
 public class SqlManager {
 

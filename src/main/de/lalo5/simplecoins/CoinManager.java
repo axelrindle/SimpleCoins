@@ -12,6 +12,8 @@ import java.sql.SQLException;
 
 /**
  * Created by Axel on 21.12.2015.
+ *
+ * Project SimpleCoins
  */
 public class CoinManager {
 
