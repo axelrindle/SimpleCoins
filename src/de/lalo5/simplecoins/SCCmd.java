@@ -45,7 +45,7 @@ public class SCCmd implements CommandExecutor {
                                     }
 
                                     CoinManager.addCoins(p_, amount);
-                                    if(SimpleCoins.vaultEnabled) {
+                                    if(SimpleCoins.vaultEnabled && SimpleCoins.econ != null) {
                                         EconomyResponse r = SimpleCoins.econ.depositPlayer(p_, amount);
                                         if(r.transactionSuccess()) {
                                             p_.sendMessage(String.format("[Vault] You were given %s and now have %s", SimpleCoins.econ.format(r.amount), SimpleCoins.econ.format(r.balance)));
@@ -89,7 +89,7 @@ public class SCCmd implements CommandExecutor {
                                     if(now != 0) {
                                         if(amount <= now) {
                                             CoinManager.removeCoins(p_, amount);
-                                            if(SimpleCoins.vaultEnabled) {
+                                            if(SimpleCoins.vaultEnabled && SimpleCoins.econ != null) {
                                                 EconomyResponse r = SimpleCoins.econ.withdrawPlayer(p_, amount);
                                                 if(r.transactionSuccess()) {
                                                     p_.sendMessage(String.format("[Vault] You were given %s and now have %s", SimpleCoins.econ.format(r.amount), SimpleCoins.econ.format(r.balance)));

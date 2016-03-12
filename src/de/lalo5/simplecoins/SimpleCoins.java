@@ -132,12 +132,18 @@ public class SimpleCoins extends JavaPlugin {
 
     private boolean setupPermissions() {
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        if (rsp == null) {
+            return false;
+        }
         perms = rsp.getProvider();
         return perms != null;
     }
 
     private boolean setupChat() {
         RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
+        if (rsp == null) {
+            return false;
+        }
         chat = rsp.getProvider();
         return chat != null;
     }
@@ -172,12 +178,12 @@ public class SimpleCoins extends JavaPlugin {
 
     private void loadCConfig() throws IOException {
 
-        configfile = new File("plugins/" + NAME + "/resources/config.yml");
+        configfile = new File("plugins/" + NAME + "/config.yml");
         if(!configfile.exists()) {
             Files.createParentDirs(configfile);
             configfile.createNewFile();
 
-            InputStream c = this.getClass().getResourceAsStream("/resources/config.yml");
+            InputStream c = this.getClass().getResourceAsStream("/config.yml");
             FileWriter writer = new FileWriter(configfile);
             IOUtils.copy(c, writer);
             writer.close();
