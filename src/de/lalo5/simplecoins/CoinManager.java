@@ -34,7 +34,7 @@ public class CoinManager {
                 "if you set UseDatabase to false in the main config." +
                 "\n\n\n");
 
-        cfg.addDefault("Database.00-00-00.Coins", 0);
+        cfg.addDefault("00-00-00.Coins", 0);
         cfg.addDefault("00-00-00.Name", "Player");
 
         cfg.options().copyHeader(true);
@@ -55,7 +55,7 @@ public class CoinManager {
         }
     }
 
-    public static boolean fileCointains(String uuid) {
+    public static boolean fileContains(String uuid) {
         return cfg.contains(uuid);
     }
 
@@ -65,7 +65,7 @@ public class CoinManager {
 
         int i = 0;
         if(!SimpleCoins.useSQL) {
-            if(!fileCointains(uuid)) {
+            if(!fileContains(uuid)) {
                 cfg.addDefault(uuid + ".Coins", 0);
                 cfg.addDefault(uuid + ".Name", p.getName());
                 saveFiles();
