@@ -1,16 +1,21 @@
-group 'de.lalo5.simplecoins'
-version '1.0'
-
-repositories {
-    mavenCentral()
-}
+group "de.lalo5"
+version "1.0"
 
 apply plugin: 'java'
 
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
 sourceSets {
-    main.java.srcDir("src/main")
+    main {
+        java.srcDir("./src")
+        resources.srcDir("./resources")
+    }
 }
 
 dependencies {
+    compile files("../GlobalLibs/spigot.jar")
     compile fileTree(dir: 'libs', include: '*.jar')
 }
