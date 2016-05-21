@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="SimpleCoins">
-    <output-path>$USER_HOME$/Schreibtisch/PluginTests/plugins</output-path>
-    <root id="archive" name="SimpleCoins.jar">
-      <element id="module-output" name="SimpleCoins" />
-      <element id="dir-copy" path="$PROJECT_DIR$/resources" />
-    </root>
-  </artifact>
-</component>
