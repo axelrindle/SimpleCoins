@@ -1,13 +1,25 @@
 group "de.lalo5"
 version "1.0"
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'me.tatarka:gradle-retrolambda:3.2.5'
+    }
+}
+
 apply plugin: 'java'
+apply plugin: 'me.tatarka.retrolambda'
 
 repositories {
     mavenCentral()
     jcenter()
 }
 
+//noinspection GroovyAssignabilityCheck
 sourceSets {
     main {
         java.srcDir("./src")
