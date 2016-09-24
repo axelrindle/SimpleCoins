@@ -12,6 +12,9 @@ CoinsName: Coins
 # Should we implement Vault support?
 UseVault: true
 
+# Should players receive messages from Vault or from SimpleCoins?
+UseVaultMessages: false
+
 # Database Connection Settings
 Database:
   # Should we use a MySQL Database or a local file?
