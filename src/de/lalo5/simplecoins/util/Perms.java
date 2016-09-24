@@ -2,6 +2,8 @@ package de.lalo5.simplecoins.util;
 
 /**
  * Created by Axel on 22.12.2015.
+ *
+ * Project MinecraftPlugins
  */
 public enum Perms {
 
@@ -11,6 +13,7 @@ public enum Perms {
     SET("simplecoins.set"),
     GETSELF("simplecoins.get.self"),
     GETOTHER("simplecoins.get.other"),
+    VAULTIMPORT("simplecoins.import.vault"),
     SYNC("simplecoins.sync"),
     RELOAD("simplecoins.reload");
 
