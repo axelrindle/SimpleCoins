@@ -8,6 +8,7 @@ import net.milkbowl.vault.permission.Permission;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.logging.Logger;
 
 /**
@@ -26,27 +28,27 @@ import java.util.logging.Logger;
  *
  * Created by Axel on 21.12.2015.
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "WeakerAccess"})
 public class SimpleCoins extends JavaPlugin {
 
-    protected static String NAME = "SimpleCoins";
-    protected static String VERSION = "1.0.0";
+    static final String NAME = "SimpleCoins";
+    static final String VERSION = "1.0.0";
 
-    protected static String consoleprefix = "[SimpleCoins] ";
-    protected static String prefix = "&3[&2SimpleCoins&3] &r";
+    static final String consoleprefix = "[SimpleCoins] ";
+    static final String prefix = "&3[&2SimpleCoins&3] &r";
 
-    protected static final Logger log = Logger.getLogger(NAME);
-    protected static SqlManager sqlManager;
+    static final Logger log = Logger.getLogger(NAME);
+    static SqlManager sqlManager;
 
-    protected static boolean useSQL;
-    public static boolean vaultEnabled;
+    static boolean useSQL;
+    static boolean vaultEnabled;
 
-    protected static File configfile;
-    protected static FileConfiguration cfg;
+    static File configfile;
+    static FileConfiguration cfg;
 
-    public static Economy econ = null;
-    public static Permission perms = null;
-    public static Chat chat = null;
+    static Economy econ = null;
+    static Permission perms = null;
+    static Chat chat = null;
 
 
     @Override
@@ -79,17 +81,18 @@ public class SimpleCoins extends JavaPlugin {
 
         if(cfg.getBoolean("UseVault")) {
             if (checkVault()) {
+                log.info(consoleprefix + "Vault found. Using vault economy instead of internal database.");
                 setupEconomy();
                 setupChat();
                 setupPermissions();
 
                 vaultEnabled = true;
             } else {
-                log.info(String.format("[%s] - Vault not found! Disabling Vault support!", getDescription().getName()));
+                log.info(consoleprefix + "Vault not found! Disabling Vault support!");
                 vaultEnabled = false;
             }
 
-            getCommand("sc").setExecutor(new SCCmd());
+            setupCommand();
         }
 
         if(loaded) {
@@ -115,6 +118,12 @@ public class SimpleCoins extends JavaPlugin {
         }
 
         log.info(consoleprefix + "Finished!");
+    }
+
+    private void setupCommand() {
+        PluginCommand sc = getCommand("sc");
+        sc.setExecutor(new SCCmd());
+        sc.setAliases(Collections.singletonList("simplecoins"));
     }
 
     private boolean checkVault() {
@@ -148,12 +157,12 @@ public class SimpleCoins extends JavaPlugin {
         return chat != null;
     }
 
-    protected static String colorize(String msg) {
+    static String colorize(String msg) {
         msg = ChatColor.translateAlternateColorCodes('&', msg);
         return msg;
     }
 
-    protected static void sendHelp(Player p) {
+    static void sendHelp(Player p) {
         p.sendMessage(colorize(prefix + "Commands:"));
         p.sendMessage("");
         if(p.hasPermission(Perms.ADD.perm()) || p.isOp()) {
@@ -183,7 +192,7 @@ public class SimpleCoins extends JavaPlugin {
             Files.createParentDirs(configfile);
             configfile.createNewFile();
 
-            InputStream c = this.getClass().getResourceAsStream("/config.yml");
+            InputStream c = getClass().getResourceAsStream("/config.yml");
             FileWriter writer = new FileWriter(configfile);
             IOUtils.copy(c, writer);
             writer.close();
@@ -201,7 +210,7 @@ public class SimpleCoins extends JavaPlugin {
         }
     }
 
-    protected static void initMySQL() throws SQLException {
+    static void initMySQL() throws SQLException {
         String host = cfg.getString("Database.Host");
         int port = cfg.getInt("Database.Port");
         String dbname = cfg.getString("Database.DatabaseName");

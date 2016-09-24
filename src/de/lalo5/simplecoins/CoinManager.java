@@ -9,22 +9,24 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Created by Axel on 21.12.2015.
  *
  * Project SimpleCoins
  */
+@SuppressWarnings("WeakerAccess")
 public class CoinManager {
 
-    protected static File coinfile;
-    protected static FileConfiguration cfg;
+    static File coinfile;
+    static FileConfiguration cfg;
 
-    protected static int DOWNLOAD = 0;
-    protected static int UPLOAD = 1;
+    static int DOWNLOAD = 0;
+    static int UPLOAD = 1;
 
 
-    protected static void loadFiles() {
+    static void loadFiles() {
 
         coinfile = new File("plugins/" + SimpleCoins.NAME + "/database.yml");
         cfg = YamlConfiguration.loadConfiguration(coinfile);
@@ -47,7 +49,7 @@ public class CoinManager {
         }
     }
 
-    protected static void saveFiles() {
+    static void saveFiles() {
         try {
             cfg.save(coinfile);
         } catch (IOException e) {
@@ -55,47 +57,58 @@ public class CoinManager {
         }
     }
 
-    public static boolean fileContains(String uuid) {
-        return cfg.contains(uuid);
+    public static boolean hasPlayer(String uuid) {
+        boolean b;
+        if(SimpleCoins.vaultEnabled) {
+            b = SimpleCoins.econ.hasAccount(Bukkit.getOfflinePlayer(UUID.fromString(uuid)));
+        } else {
+            b = cfg.contains(uuid);
+        }
+
+        return b;
     }
 
-    public static int getCoins(Player p) {
+    public static double getCoins(Player p) {
 
         String uuid = p.getUniqueId().toString();
 
-        int i = 0;
-        if(!SimpleCoins.useSQL) {
-            if(!fileContains(uuid)) {
-                cfg.addDefault(uuid + ".Coins", 0);
-                cfg.addDefault(uuid + ".Name", p.getName());
-                saveFiles();
-            } else {
-                i = cfg.getInt(uuid + ".Coins");
-            }
+        double i = 0;
+        if(SimpleCoins.vaultEnabled) {
+            i = SimpleCoins.econ.getBalance(Bukkit.getOfflinePlayer(p.getUniqueId()));
         } else {
-            String dbname = SimpleCoins.cfg.getString("Database.TableName").toLowerCase();
-            try {
-                ResultSet rs = SimpleCoins.sqlManager.returnValue("SELECT `Coins` FROM `" + dbname + "` WHERE `UUID` = '" + uuid + "'");
-                if(!rs.next()) {
-                    SimpleCoins.sqlManager.executeStatement("INSERT INTO `" + dbname + "` (`UUID`, `Name`, `Coins`) VALUES ('" + uuid + "', '" + p.getName() + "', '0');");
-                    i = 0;
+            if(!SimpleCoins.useSQL) {
+                if(!hasPlayer(uuid)) {
+                    cfg.addDefault(uuid + ".Coins", 0D);
+                    cfg.addDefault(uuid + ".Name", p.getName());
+                    saveFiles();
                 } else {
-                    i = rs.getInt("Coins");
+                    i = cfg.getDouble(uuid + ".Coins");
                 }
-                rs.getStatement().close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } else {
+                String dbname = SimpleCoins.cfg.getString("Database.TableName").toLowerCase();
+                try {
+                    ResultSet rs = SimpleCoins.sqlManager.returnValue("SELECT `Coins` FROM `" + dbname + "` WHERE `UUID` = '" + uuid + "'");
+                    if(!rs.next()) {
+                        SimpleCoins.sqlManager.executeStatement("INSERT INTO `" + dbname + "` (`UUID`, `Name`, `Coins`) VALUES ('" + uuid + "', '" + p.getName() + "', '0');");
+                        i = 0;
+                    } else {
+                        i = rs.getDouble("Coins");
+                    }
+                    rs.getStatement().close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
         return i;
     }
 
-    public static void addCoins(Player p, int coins) {
+    public static void addCoins(Player p, double coins) {
 
         String uuid = p.getUniqueId().toString();
 
-        int old = getCoins(p);
+        double old = getCoins(p);
 
         if(!SimpleCoins.useSQL) {
             cfg.set(uuid + ".Coins", old + coins);
@@ -103,7 +116,7 @@ public class CoinManager {
         } else {
             String dbname = SimpleCoins.cfg.getString("Database.TableName").toLowerCase();
             try {
-                int n = old + coins;
+                double n = old + coins;
                 SimpleCoins.sqlManager.executeStatement(
                         "UPDATE `" + dbname + "` SET `Coins` = '" + String.valueOf(n) + "' WHERE `" + dbname + "`.`UUID` = '" + uuid + "' LIMIT 1 "
                 );
@@ -113,11 +126,11 @@ public class CoinManager {
         }
     }
 
-    public static void removeCoins(Player p, int coins) {
+    public static void removeCoins(Player p, double coins) {
 
         String uuid = p.getUniqueId().toString();
 
-        int old = getCoins(p);
+        double old = getCoins(p);
 
         if(!(coins > old)) {
             if(!SimpleCoins.useSQL) {
@@ -126,7 +139,7 @@ public class CoinManager {
             } else {
                 String dbname = SimpleCoins.cfg.getString("Database.TableName").toLowerCase();
                 try {
-                    int n = old - coins;
+                    double n = old - coins;
                     SimpleCoins.sqlManager.executeStatement(
                             "UPDATE `" + dbname + "` SET `Coins` = '" + String.valueOf(n) + "' WHERE `" + dbname + "`.`UUID` = '" + uuid + "' LIMIT 1 "
                     );
@@ -137,10 +150,11 @@ public class CoinManager {
         }
     }
 
-    public static void setCoins(Player p, int coins) {
+    public static void setCoins(Player p, double coins) {
 
         String uuid = p.getUniqueId().toString();
 
+        //create account if none exists to avoid errors
         getCoins(p);
 
         if(coins >= 0) {
@@ -161,7 +175,7 @@ public class CoinManager {
     }
 
 
-    public static void sync(int mode) {
+    static void sync(int mode) {
         if(mode == DOWNLOAD) {
             loadFiles();
 
@@ -176,7 +190,7 @@ public class CoinManager {
 
                 for(String uuid : cfg.getKeys(false)) {
                     String name = cfg.getString(uuid + "Name");
-                    int coins = cfg.getInt(uuid + "Coins");
+                    double coins = cfg.getDouble(uuid + "Coins");
 
                     String dbname = SimpleCoins.cfg.getString("Database.TableName").toLowerCase();
 
