@@ -58,7 +58,7 @@ class SqlManager {
         String url = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
         conn = DriverManager.getConnection(url, username, password);
 
-        SimpleCoins.log.info(SimpleCoins.consoleprefix + "Successfully connected to the MySQL database.");
+        SimpleCoins.LOGGER.info(SimpleCoins.CONSOLEPREFIX + "Successfully connected to the MySQL database.");
     }
 
     /**
@@ -84,7 +84,7 @@ class SqlManager {
      */
     void closeConnection() throws SQLException {
         conn.close();
-        SimpleCoins.log.info(SimpleCoins.consoleprefix + "Successfully disconnected from the MySQL database.");
+        SimpleCoins.LOGGER.info(SimpleCoins.CONSOLEPREFIX + "Successfully disconnected from the MySQL database.");
     }
 
     /**
