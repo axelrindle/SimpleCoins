@@ -115,11 +115,11 @@ public final class CoinManager {
                     i = fileConfiguration.getDouble(uuid + ".Coins");
                 }
             } else {
-                String dbname = SimpleCoins.fileConfiguration.getString("Database.TableName").toLowerCase();
+                String tableName = SimpleCoins.fileConfiguration.getString("Database.TableName");
                 try {
-                    ResultSet rs = SimpleCoins.sqlManager.returnValue("SELECT `Coins` FROM `" + dbname + "` WHERE `UUID` = '" + uuid + "'");
+                    ResultSet rs = SimpleCoins.sqlManager.returnValue("SELECT `Coins` FROM `" + tableName + "` WHERE `UUID` = '" + uuid + "'");
                     if(!rs.next()) {
-                        SimpleCoins.sqlManager.executeStatement("INSERT INTO `" + dbname + "` (`UUID`, `Name`, `Coins`) VALUES ('" + uuid + "', '" + player.getName() + "', '0');");
+                        SimpleCoins.sqlManager.executeStatement("INSERT INTO `" + tableName + "` (`UUID`, `Name`, `Coins`) VALUES ('" + uuid + "', '" + player.getName() + "', '0');");
                         i = 0;
                     } else {
                         i = rs.getDouble("Coins");
@@ -127,6 +127,9 @@ public final class CoinManager {
                     rs.getStatement().close();
                 } catch (SQLException e) {
                     e.printStackTrace();
+                } catch (NullPointerException e1) {
+                    SimpleCoins.LOGGER.severe("Failed to retrieve coin amount from database!");
+                    e1.printStackTrace();
                 }
             }
         }
@@ -181,7 +184,7 @@ public final class CoinManager {
                 fileConfiguration.set(uuid + ".Coins", newAmount);
                 saveFiles();
             } else {
-                String dbname = SimpleCoins.fileConfiguration.getString("Database.TableName").toLowerCase();
+                String dbname = SimpleCoins.fileConfiguration.getString("Database.TableName");
                 try {
                     SimpleCoins.sqlManager.executeStatement(
                             "UPDATE `" + dbname + "` SET `Coins` = '" + String.valueOf(newAmount) + "' WHERE `" + dbname + "`.`UUID` = '" + uuid + "' LIMIT 1 "
