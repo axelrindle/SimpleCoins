@@ -66,12 +66,11 @@ public final class SimpleCoins extends JavaPlugin {
                 initMySQL();
             }
         } catch (IOException e) {
-            LOGGER.info(CONSOLEPREFIX + "Something went wrong while loading! DISABLING...");
+            LOGGER.severe(CONSOLEPREFIX + "Something went wrong while loading! DISABLING...");
+            loaded = false;
             Bukkit.getPluginManager().disablePlugin(this);
         } catch (SQLException e) {
             LOGGER.severe(CONSOLEPREFIX + "Couldn't connect to MySQL database! DISABLING...");
-            fileConfiguration.set("Database.UseSQL", false);
-            saveCConfig();
             loaded = false;
             Bukkit.getPluginManager().disablePlugin(this);
         }
@@ -79,18 +78,23 @@ public final class SimpleCoins extends JavaPlugin {
         if(fileConfiguration.getBoolean("UseVault")) {
             if (checkVault()) {
                 LOGGER.info(CONSOLEPREFIX + "Vault found. Using vault economy instead of internal database.");
-                setupEconomy();
-                setupChat();
-                setupPermissions();
 
-                vaultEnabled = true;
+                boolean noError = true;
+                if(!setupEconomy()) noError = false;
+                if(!setupPermissions()) noError = false;
+
+                if(!noError) {
+                    LOGGER.severe("Something went wrong while integrating Vault!");
+                }
+
+                vaultEnabled = noError;
             } else {
-                LOGGER.info(CONSOLEPREFIX + "Vault not found! Disabling Vault support!");
+                LOGGER.info(CONSOLEPREFIX + "Vault not found! Disabling Vault support.");
                 vaultEnabled = false;
             }
-
-            setupCommand();
         }
+
+        setupCommand();
 
         if(loaded) {
             LOGGER.info(CONSOLEPREFIX + "Finished! Version " + VERSION);
@@ -102,7 +106,6 @@ public final class SimpleCoins extends JavaPlugin {
         LOGGER.info(CONSOLEPREFIX + "Shutting down...");
 
         try {
-            saveCConfig();
             if(!useSQL) {
                 CoinManager.saveFiles();
             } else {
@@ -232,14 +235,6 @@ public final class SimpleCoins extends JavaPlugin {
         }
 
         fileConfiguration = YamlConfiguration.loadConfiguration(configFile);
-    }
-
-    private void saveCConfig() {
-        try {
-            fileConfiguration.save(configFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
