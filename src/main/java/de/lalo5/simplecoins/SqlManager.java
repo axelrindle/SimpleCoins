@@ -4,6 +4,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 
+import static de.lalo5.simplecoins.SimpleCoins.*;
+import static de.lalo5.simplecoins.SimpleCoins.LOGGER;
+
 /**
  * Helper-class to interact with the MySQL Database.
  */
@@ -58,7 +61,7 @@ class SqlManager {
         String url = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
         conn = DriverManager.getConnection(url, username, password);
 
-        SimpleCoins.LOGGER.info(SimpleCoins.CONSOLEPREFIX + "Successfully connected to the MySQL database.");
+        LOGGER.info(CONSOLEPREFIX + "Successfully connected to the MySQL database.");
     }
 
     /**
@@ -75,6 +78,7 @@ class SqlManager {
                         "UNIQUE `UUID` (`UUID`(36))) " +
                         "ENGINE = InnoDB CHARSET=utf8 COLLATE utf8_general_ci COMMENT = 'SimpleCoins account storage';"
         );
+        LOGGER.info("Created table " + tableName + ".");
     }
 
     /**
@@ -84,7 +88,7 @@ class SqlManager {
      */
     void closeConnection() throws SQLException {
         conn.close();
-        SimpleCoins.LOGGER.info(SimpleCoins.CONSOLEPREFIX + "Successfully disconnected from the MySQL database.");
+        LOGGER.info(CONSOLEPREFIX + "Successfully disconnected from the MySQL database.");
     }
 
     /**
@@ -111,15 +115,12 @@ class SqlManager {
      */
     @Nullable
     ResultSet returnValue(String command) {
-        PreparedStatement ps;
-        ResultSet rs = null;
         try {
-            ps = conn.prepareStatement(command);
-            rs = ps.executeQuery();
+            return conn.prepareStatement(command).executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return rs;
+        return null;
     }
 }
