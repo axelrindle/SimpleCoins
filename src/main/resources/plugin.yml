@@ -1,6 +1,6 @@
 name: SimpleCoins
 version: 1.0.0
-main: SimpleCoins
+main: de.lalo5.simplecoins.SimpleCoins
 softdepend: [Vault]
 website: http://dev.bukkit.org/bukkit-plugins/simplecoins/
 commands:
