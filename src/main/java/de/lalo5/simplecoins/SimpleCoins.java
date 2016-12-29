@@ -2,17 +2,18 @@ package de.lalo5.simplecoins;
 
 import com.google.common.io.Files;
 import de.lalo5.simplecoins.util.Perms;
-import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.PluginCommand;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -21,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.logging.Logger;
 
 /**
@@ -30,33 +30,41 @@ import java.util.logging.Logger;
 @SuppressWarnings({"ResultOfMethodCallIgnored", "WeakerAccess"})
 public final class SimpleCoins extends JavaPlugin {
 
-    static final String NAME = "SimpleCoins";
-    static final String VERSION = "0.3";
-
     static final String CONSOLEPREFIX = "[SimpleCoins] ";
-    static final String PREFIX = "&3[&2SimpleCoins&3] &r";
+    static final String PREFIX = "&6SimpleCoins &r> ";
 
-    static final Logger LOGGER = Logger.getLogger(NAME);
+    static final Logger LOGGER = Logger.getLogger("SimpleCoins");
     static SqlManager sqlManager;
 
     static boolean useSQL;
-    static boolean vaultEnabled;
 
     static File configFile;
     static FileConfiguration fileConfiguration;
 
     static Economy econ = null;
-    static Permission perms = null;
-    static Chat chat = null;
 
     @Override
     public void onEnable() {
         boolean loaded = true;
 
         LOGGER.info(CONSOLEPREFIX + "Loading...");
+
         try {
             initConfig();
+        } catch (IOException e) {
+            LOGGER.severe(CONSOLEPREFIX + "Something went wrong while loading the config!");
+            e.printStackTrace();
+            loaded = false;
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
 
+        if (checkVault()) {
+            LOGGER.info(CONSOLEPREFIX + "Vault found. Integrating Vault's economy system...");
+            setupEconomy();
+            LOGGER.info(CONSOLEPREFIX + "Successfully integrated Vault.");
+        }
+
+        try {
             useSQL = fileConfiguration.getBoolean("Database.UseSQL");
             if(!useSQL) {
                 LOGGER.info(CONSOLEPREFIX + "Using local database. (database.yml)");
@@ -65,39 +73,25 @@ public final class SimpleCoins extends JavaPlugin {
                 LOGGER.info(CONSOLEPREFIX + "Using MySQL database.");
                 initMySQL();
             }
-        } catch (IOException e) {
-            LOGGER.severe(CONSOLEPREFIX + "Something went wrong while loading! DISABLING...");
-            loaded = false;
-            Bukkit.getPluginManager().disablePlugin(this);
         } catch (SQLException e) {
-            LOGGER.severe(CONSOLEPREFIX + "Couldn't connect to MySQL database! DISABLING...");
+            LOGGER.severe(CONSOLEPREFIX + "Couldn't connect to MySQL database!");
+            e.printStackTrace();
             loaded = false;
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
-        if(fileConfiguration.getBoolean("UseVault")) {
-            if (checkVault()) {
-                LOGGER.info(CONSOLEPREFIX + "Vault found. Using vault economy instead of internal database.");
-
-                boolean noError = true;
-                if(!setupEconomy()) noError = false;
-                if(!setupPermissions()) noError = false;
-
-                if(!noError) {
-                    LOGGER.severe("Something went wrong while integrating Vault!");
-                }
-
-                vaultEnabled = noError;
-            } else {
-                LOGGER.info(CONSOLEPREFIX + "Vault not found! Disabling Vault support.");
-                vaultEnabled = false;
+        LOGGER.info("Registering events...");
+        getServer().getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onLogin(PlayerLoginEvent event) {
+                CoinManager.getCoins(event.getPlayer()); // creates an account if the joined player does not have one.
             }
-        }
 
-        setupCommand();
+        }, this);
 
         if(loaded) {
-            LOGGER.info(CONSOLEPREFIX + "Finished! Version " + VERSION);
+            setupCommand();
+            LOGGER.info(CONSOLEPREFIX + "Finished! Version " + getDescription().getVersion());
         }
     }
 
@@ -116,16 +110,14 @@ public final class SimpleCoins extends JavaPlugin {
             e.printStackTrace();
         }
 
-        LOGGER.info(CONSOLEPREFIX + "Finished!");
+        LOGGER.info(CONSOLEPREFIX + "Done!");
     }
 
     /**
      * Initializes the <b>/sc</b> (alias: <b>/simplecoins</b>) command.
      */
     private void setupCommand() {
-        PluginCommand sc = getCommand("sc");
-        sc.setExecutor(new SCCmd());
-        sc.setAliases(Collections.singletonList("simplecoins"));
+        getCommand("sc").setExecutor(new SCCmd());
     }
 
     /**
@@ -137,41 +129,9 @@ public final class SimpleCoins extends JavaPlugin {
 
     /**
      * Initializes Vault's economy system.
-     * @return <code>true</code> if it has been found, <code>false</code> otherwise.
      */
-    private boolean setupEconomy() {
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        econ = rsp.getProvider();
-        return econ != null;
-    }
-
-    /**
-     * Initializes Vault's permission system.
-     * @return <code>true</code> if it has been found, <code>false</code> otherwise.
-     */
-    private boolean setupPermissions() {
-        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-        if (rsp == null) {
-            return false;
-        }
-        perms = rsp.getProvider();
-        return perms != null;
-    }
-
-    /**
-     * Initializes Vault's chat system.
-     * @return <code>true</code> if it has been found, <code>false</code> otherwise.
-     */
-    private boolean setupChat() {
-        RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
-        if (rsp == null) {
-            return false;
-        }
-        chat = rsp.getProvider();
-        return chat != null;
+    private void setupEconomy() {
+        getServer().getServicesManager().register(Economy.class, new CoinManager.SimpleEconomy(), this, ServicePriority.Normal);
     }
 
     /**
@@ -182,35 +142,34 @@ public final class SimpleCoins extends JavaPlugin {
      * @return The formatted String.
      */
     static String colorize(String message) {
-        message = ChatColor.translateAlternateColorCodes('&', message);
-        return message;
+        return ChatColor.translateAlternateColorCodes('&', message);
     }
 
     /**
      * Sends the specified Player messages with all commands he may execute.
      *
-     * @param player The player to send the messages to.
+     * @param sender The player to send the messages to.
      */
-    static void sendHelp(Player player) {
-        player.sendMessage(colorize(PREFIX + "Commands:"));
-        player.sendMessage("");
-        if(player.hasPermission(Perms.ADD.perm()) || player.isOp()) {
-            player.sendMessage(colorize("&2/sc add <player> <amount> &8- &fAdd <amount> coins to <player>'s account."));
+    static void sendHelp(CommandSender sender) {
+        sender.sendMessage(colorize(PREFIX + "Commands:"));
+        sender.sendMessage("");
+        if(sender.hasPermission(Perms.ADD.perm()) || sender.isOp()) {
+            sender.sendMessage(colorize("&2/sc add <player> <amount> &8- &fAdd <amount> coins to <player>'s account."));
         }
-        if(player.hasPermission(Perms.REMOVE.perm()) || player.isOp()) {
-            player.sendMessage(colorize("&2/sc remove <player> <amount> &8- &fRemove <amount> coins from <player>'s account."));
+        if(sender.hasPermission(Perms.REMOVE.perm()) || sender.isOp()) {
+            sender.sendMessage(colorize("&2/sc remove <player> <amount> &8- &fRemove <amount> coins from <player>'s account."));
         }
-        if(player.hasPermission(Perms.SET.perm()) || player.isOp()) {
-            player.sendMessage(colorize("&2/sc set <player> <amount> &8- &fSet <player>'s coins to <amount>."));
+        if(sender.hasPermission(Perms.SET.perm()) || sender.isOp()) {
+            sender.sendMessage(colorize("&2/sc set <player> <amount> &8- &fSet <player>'s coins to <amount>."));
         }
-        if(player.hasPermission(Perms.GETSELF.perm()) || player.isOp()) {
-            player.sendMessage(colorize("&2/sc get &8- &fView how many coins you have."));
+        if(sender instanceof Player && (sender.hasPermission(Perms.GETSELF.perm()) || sender.isOp())) {
+            sender.sendMessage(colorize("&2/sc get &8- &fView how many coins you have."));
         }
-        if(player.hasPermission(Perms.GETOTHER.perm()) || player.isOp()) {
-            player.sendMessage(colorize("&2/sc get <player> &8- &fView how many coins <player> have."));
+        if(sender.hasPermission(Perms.GETOTHER.perm()) || sender.isOp()) {
+            sender.sendMessage(colorize("&2/sc get <player> &8- &fView how many coins <player> have."));
         }
-        if(player.hasPermission(Perms.RELOAD.perm()) || player.isOp()) {
-            player.sendMessage(colorize("&2/sc reload &8- &fReload the plugin. Reconnects to the database or reloads the database.yml"));
+        if(sender.hasPermission(Perms.RELOAD.perm()) || sender.isOp()) {
+            sender.sendMessage(colorize("&2/sc reload &8- &fReload the plugin. Reconnects to the database or reloads the database.yml"));
         }
     }
 
@@ -222,7 +181,7 @@ public final class SimpleCoins extends JavaPlugin {
      * @throws IOException If the file could not be read.
      */
     private void initConfig() throws IOException {
-        configFile = new File("plugins/" + NAME + "/config.yml");
+        configFile = new File("plugins/SimpleCoins/config.yml");
         if(!configFile.exists()) {
             Files.createParentDirs(configFile);
             configFile.createNewFile();

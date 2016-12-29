@@ -1,7 +1,7 @@
 package de.lalo5.simplecoins;
 
 import de.lalo5.simplecoins.util.Perms;
-import net.milkbowl.vault.economy.EconomyResponse;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Objects;
 
 import static de.lalo5.simplecoins.SimpleCoins.*;
 
@@ -24,213 +25,179 @@ class SCCmd implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
-        if(sender instanceof Player) {
-            Player p = (Player) sender;
+        if(Objects.equals(label, cmd.getName()) || cmd.getAliases().contains(label)) {
+            if(sender.hasPermission(Perms.MAIN.perm())) {
+                if(args.length == 0) {
 
-            if(cmd.getName().equalsIgnoreCase("sc")) {
-                if(p.hasPermission(Perms.MAIN.perm())) {
-                    if(args.length == 0) {
+                    sendHelp(sender);
 
-                        SimpleCoins.sendHelp(p);
+                } else if(args[0].equalsIgnoreCase("add")) {
+                    if(sender.hasPermission(Perms.ADD.perm())) {
+                        if(args.length == 3) {
 
-                        return true;
-                    } else if(args[0].equalsIgnoreCase("add")) {
-                        if(p.hasPermission(Perms.ADD.perm())) {
-                            if(args.length == 3) {
-
-                                Player p_ = Bukkit.getPlayer(args[1]);
-                                if(p_ != null) {
-                                    double amount;
-                                    try {
-                                        amount = Double.parseDouble(args[2]);
-                                    } catch (NumberFormatException e) {
-                                        p.sendMessage(SimpleCoins.colorize(PREFIX + "&cPlease enter a number as the second argument!"));
-                                        return false;
-                                    }
-
-                                    CoinManager.addCoins(p_, amount);
-                                    if(vaultEnabled && econ != null) {
-                                        EconomyResponse r = econ.depositPlayer(p_, amount);
-                                        if(r.transactionSuccess() && fileConfiguration.getBoolean("UseVaultMessages")) {
-                                            p_.sendMessage(String.format("[Vault] You were given %s and now have %s", econ.format(r.amount), econ.format(r.balance)));
-                                        } else {
-                                            p_.sendMessage(String.format("[Vault] An error occured: %s", r.errorMessage));
-                                        }
-                                    }
-
-                                    String message = fileConfiguration.getString("Messages.Coins_Received");
-                                    message = message.replaceAll("%amountrec%", String.valueOf(amount));
-                                    message = message.replaceAll("%amount%", String.valueOf(CoinManager.getCoins(p_)));
-                                    message = message.replaceAll("%playername%", p_.getName());
-                                    message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
-
-                                    p_.sendMessage(SimpleCoins.colorize(PREFIX + message));
-                                } else {
-                                    p.sendMessage(SimpleCoins.colorize(PREFIX + "&cThis player does not exist!"));
+                            Player p_ = Bukkit.getPlayer(args[1]);
+                            String a = StringUtils.replace(args[2], ",", ".");
+                            if(p_ != null) {
+                                double amount;
+                                try {
+                                    amount = Double.parseDouble(a);
+                                } catch (NumberFormatException e) {
+                                    sender.sendMessage(colorize("&cPlease enter a decimal number as the second argument! (e.g. 3.4 or 9,99)"));
+                                    return true;
                                 }
 
-                                return true;
+                                CoinManager.addCoins(p_, amount);
+                                String message = fileConfiguration.getString("Messages.Coins_Received");
+                                message = message.replaceAll("%amountrec%", String.valueOf(amount));
+                                message = message.replaceAll("%amount%", String.valueOf(CoinManager.getCoins(p_)));
+                                message = message.replaceAll("%playername%", p_.getName());
+                                message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
+
+                                p_.sendMessage(colorize(PREFIX + message));
+                            } else {
+                                sender.sendMessage(colorize("&cThis player does not exist!"));
                             }
-                        } else {
-                            p.sendMessage(SimpleCoins.colorize(PREFIX + fileConfiguration.getString("Messages.NoPermission")));
-                            return true;
                         }
-                    } else if(args[0].equalsIgnoreCase("remove")) {
-                        if(p.hasPermission(Perms.REMOVE.perm())) {
-                            if(args.length == 3) {
+                    } else {
+                        sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                    }
+                } else if(args[0].equalsIgnoreCase("remove")) {
+                    if(sender.hasPermission(Perms.REMOVE.perm())) {
+                        if(args.length == 3) {
 
-                                Player p_ = Bukkit.getPlayer(args[1]);
-                                if(p_ != null) {
-                                    double amount;
-                                    try {
-                                        amount = Double.parseDouble(args[2]);
-                                    } catch (NumberFormatException e) {
-                                        p.sendMessage(SimpleCoins.colorize(PREFIX + "&cPlease enter a number as the second argument!"));
-                                        return false;
-                                    }
-
-                                    double now = CoinManager.getCoins(p_);
-                                    if(now != 0) {
-                                        if(amount <= now) {
-                                            CoinManager.removeCoins(p_, amount);
-                                            if(vaultEnabled && econ != null) {
-                                                EconomyResponse r = econ.withdrawPlayer(p_, amount);
-                                                if(r.transactionSuccess() && fileConfiguration.getBoolean("UseVaultMessages")) {
-                                                    p_.sendMessage(String.format("[Vault] You were given %s and now have %s", econ.format(r.amount), econ.format(r.balance)));
-                                                } else {
-                                                    p_.sendMessage(String.format("[Vault] An error occured: %s", r.errorMessage));
-                                                }
-                                            }
-
-                                            String message = fileConfiguration.getString("Messages.Coins_Taken");
-                                            message = message.replaceAll("%amountrec%", String.valueOf(amount));
-                                            message = message.replaceAll("%amount%", String.valueOf(CoinManager.getCoins(p_)));
-                                            message = message.replaceAll("%playername%", p_.getName());
-                                            message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
-
-                                            p_.sendMessage(SimpleCoins.colorize(PREFIX + message));
-                                        } else {
-                                            p.sendMessage(SimpleCoins.colorize(PREFIX + "&cAmount muss be less than or equals to &2" + now));
-                                        }
-                                    } else {
-                                        p.sendMessage(SimpleCoins.colorize(PREFIX + "&cPlayer " + p_.getName() +  "has 0 &9" + fileConfiguration.getString("CoinsName") + "&c!"));
-                                    }
-                                } else {
-                                    p.sendMessage(SimpleCoins.colorize(PREFIX + "&cThis player does not exist!"));
+                            Player p_ = Bukkit.getPlayer(args[1]);
+                            String a = StringUtils.replace(args[2], ",", ".");
+                            if(p_ != null) {
+                                double amount;
+                                try {
+                                    amount = Double.parseDouble(a);
+                                } catch (NumberFormatException e) {
+                                    sender.sendMessage(colorize("&cPlease enter a decimal number as the second argument! (e.g. 3.4 or 9,99)"));
+                                    return true;
                                 }
 
-                                return true;
-                            }
-                        } else {
-                            p.sendMessage(SimpleCoins.colorize(PREFIX + fileConfiguration.getString("Messages.NoPermission")));
-                            return true;
-                        }
-                    } else if(args[0].equalsIgnoreCase("set")) {
-                        if(p.hasPermission(Perms.SET.perm())) {
-                            if(args.length == 3) {
-
-                                Player p_ = Bukkit.getPlayer(args[1]);
-                                if(p_ != null) {
-                                    double amount;
-                                    try {
-                                        amount = Double.parseDouble(args[2]);
-                                    } catch (NumberFormatException e) {
-                                        p.sendMessage(SimpleCoins.colorize(PREFIX + "&cPlease enter a number as the second argument!"));
-                                        return false;
-                                    }
-
-                                    if(amount > 0) {
-                                        CoinManager.setCoins(p_, amount);
-
-                                        String message = fileConfiguration.getString("Messages.Coins_Set");
+                                double now = CoinManager.getCoins(p_);
+                                if(now != 0) {
+                                    if(amount <= now) {
+                                        CoinManager.removeCoins(p_, amount);
+                                        String message = fileConfiguration.getString("Messages.Coins_Taken");
+                                        message = message.replaceAll("%amountrec%", String.valueOf(amount));
                                         message = message.replaceAll("%amount%", String.valueOf(CoinManager.getCoins(p_)));
                                         message = message.replaceAll("%playername%", p_.getName());
                                         message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
 
-                                        p_.sendMessage(SimpleCoins.colorize(PREFIX + message));
+                                        p_.sendMessage(colorize(PREFIX + message));
                                     } else {
-                                        p.sendMessage(SimpleCoins.colorize(PREFIX + "&cAmount must be greater than or equals to &20&c!"));
+                                        sender.sendMessage(colorize("&cAmount muss be less than or equals to &2" + now));
                                     }
                                 } else {
-                                    p.sendMessage(SimpleCoins.colorize(PREFIX + "&cThis player does not exist!"));
+                                    sender.sendMessage(colorize("&cPlayer " + p_.getName() +  "has 0 &9" + fileConfiguration.getString("CoinsName") + "&c!"));
+                                }
+                            } else {
+                                sender.sendMessage(colorize("&cThis player does not exist!"));
+                            }
+                        }
+                    } else {
+                        sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                    }
+                } else if(args[0].equalsIgnoreCase("set")) {
+                    if(sender.hasPermission(Perms.SET.perm())) {
+                        if(args.length == 3) {
+
+                            Player p_ = Bukkit.getPlayer(args[1]);
+                            String a = StringUtils.replace(args[2], ",", ".");
+                            if(p_ != null) {
+                                double amount;
+                                try {
+                                    amount = Double.parseDouble(a);
+                                } catch (NumberFormatException e) {
+                                    sender.sendMessage(colorize(PREFIX + "&cPlease enter a decimal number as the second argument! (e.g. 3.4 or 9,99)"));
+                                    return true;
                                 }
 
-                                return true;
-                            }
-                        } else {
-                            p.sendMessage(SimpleCoins.colorize(PREFIX + fileConfiguration.getString("Messages.NoPermission")));
-                            return true;
-                        }
-                    } else if(args[0].equalsIgnoreCase("get")) {
-                        if(args.length == 2) {
-                            if(p.hasPermission(Perms.GETOTHER.perm())) {
+                                if(amount >= 0) {
+                                    CoinManager.setCoins(p_, amount);
 
-                                Player p_ = Bukkit.getPlayer(args[1]);
-                                if(p_ != null) {
-                                    double amount = CoinManager.getCoins(p_);
-
-                                    String message = fileConfiguration.getString("Messages.Coins_Get_Other");
-                                    message = message.replaceAll("%amount%", String.valueOf(amount));
-                                    message = message.replaceAll("%playername%", p.getName());
-                                    message = message.replaceAll("%otherplayername%", p_.getName());
+                                    String message = fileConfiguration.getString("Messages.Coins_Set");
+                                    message = message.replaceAll("%amount%", String.valueOf(CoinManager.getCoins(p_)));
+                                    message = message.replaceAll("%playername%", p_.getName());
                                     message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
 
-                                    p.sendMessage(SimpleCoins.colorize(PREFIX + message));
-
-                                    return true;
+                                    p_.sendMessage(colorize(PREFIX + message));
                                 } else {
-                                    p.sendMessage(SimpleCoins.colorize(PREFIX + "&cThis player does not exist!"));
+                                    sender.sendMessage(colorize(PREFIX + "&cAmount must be greater than or equals to &20&c!"));
                                 }
-
                             } else {
-                                p.sendMessage(SimpleCoins.colorize(PREFIX + fileConfiguration.getString("Messages.NoPermission")));
-                                return true;
+                                sender.sendMessage(colorize(PREFIX + "&cThis player does not exist!"));
                             }
-                        } else if(args.length == 1) {
-                            if(p.hasPermission(Perms.GETSELF.perm())) {
-                                double amount = CoinManager.getCoins(p);
+                        }
+                    } else {
+                        sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                    }
+                } else if(args[0].equalsIgnoreCase("get")) {
+                    if(args.length == 2) {
+                        if(sender.hasPermission(Perms.GETOTHER.perm())) {
+
+                            Player p_ = Bukkit.getPlayer(args[1]);
+                            if(p_ != null) {
+                                double amount = CoinManager.getCoins(p_);
+
+                                String message = fileConfiguration.getString("Messages.Coins_Get_Other");
+                                message = message.replaceAll("%amount%", String.valueOf(amount));
+                                message = message.replaceAll("%playername%", sender.getName());
+                                message = message.replaceAll("%otherplayername%", p_.getName());
+                                message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
+
+                                sender.sendMessage(colorize(PREFIX + message));
+                            } else {
+                                sender.sendMessage(colorize(PREFIX + "&cThis player does not exist!"));
+                            }
+
+                        } else {
+                            sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                        }
+                    } else if(args.length == 1) {
+                        if(sender instanceof Player) {
+                            if(sender.hasPermission(Perms.GETSELF.perm())) {
+                                double amount = CoinManager.getCoins((Player)sender);
 
                                 String message = fileConfiguration.getString("Messages.Coins_Get_Self");
                                 message = message.replaceAll("%amount%", String.valueOf(amount));
-                                message = message.replaceAll("%playername%", p.getName());
+                                message = message.replaceAll("%playername%", sender.getName());
                                 message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
 
-                                p.sendMessage(SimpleCoins.colorize(PREFIX + message));
-                                return true;
+                                sender.sendMessage(colorize(PREFIX + message));
                             } else {
-                                p.sendMessage(SimpleCoins.colorize(PREFIX + fileConfiguration.getString("Messages.NoPermission")));
-                                return true;
-                            }
-                        }
-                    } else if(args[0].equalsIgnoreCase("reload")) {
-                        if(p.hasPermission(Perms.RELOAD.perm())) {
-                            if(args.length == 1) {
-                                if(!vaultEnabled) {
-                                    try {
-                                        if(SimpleCoins.useSQL) {
-                                            SimpleCoins.sqlManager.closeConnection();
-                                            SimpleCoins.sqlManager.connect();
-                                        } else {
-                                            fileConfiguration.save(SimpleCoins.configFile);
-                                            fileConfiguration = YamlConfiguration.loadConfiguration(SimpleCoins.configFile);
-                                            CoinManager.saveFiles();
-                                            CoinManager.loadFiles();
-                                        }
-
-                                        p.sendMessage(SimpleCoins.colorize(PREFIX + fileConfiguration.getString("Messages.Reload")));
-                                    } catch (SQLException | IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    p.sendMessage(SimpleCoins.colorize(PREFIX + "No need to reload. Vault is handling everything."));
-                                }
+                                sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
                             }
                         } else {
-                            p.sendMessage(SimpleCoins.colorize(PREFIX + fileConfiguration.getString("Messages.NoPermission")));
-                            return true;
+                            sender.sendMessage("§4The Console does not have a coin account!");
                         }
-                    } /*else if(args[0].equalsIgnoreCase("sync")) {
-                        if(p.hasPermission(Perms.SYNC.perm())) {
+                    }
+                } else if(args[0].equalsIgnoreCase("reload")) {
+                    if(sender.hasPermission(Perms.RELOAD.perm())) {
+                        if(args.length == 1) {
+                            try {
+                                if(useSQL) {
+                                    sqlManager.closeConnection();
+                                    sqlManager.connect();
+                                } else {
+                                    fileConfiguration.save(configFile);
+                                    fileConfiguration = YamlConfiguration.loadConfiguration(configFile);
+                                    CoinManager.saveFiles();
+                                    CoinManager.loadFiles();
+                                }
+
+                                sender.sendMessage(colorize(PREFIX + fileConfiguration.getString("Messages.Reload")));
+                            } catch (SQLException | IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } else {
+                        sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                    }
+                } /*else if(args[0].equalsIgnoreCase("sync")) {
+                        if(sender.hasPermission(Perms.SYNC.perm())) {
                             if(args.length == 2) {
 
                                 int mode = 2;
@@ -243,18 +210,16 @@ class SCCmd implements CommandExecutor {
                                 if(mode == 0 || mode == 1) {
                                     CoinManager.sync(mode);
                                 } else {
-                                    p.sendMessage(SimpleCoins.colorize(PREFIX + "&cMode must be &20 &cor &21&c!"));
+                                    sender.sendMessage(SimpleCoins.colorize(PREFIX + "&cMode must be &20 &cor &21&c!"));
                                 }
                             }
                         }
                     }*/
-                } else {
-                    p.sendMessage(SimpleCoins.colorize(PREFIX + fileConfiguration.getString("Messages.NoPermission")));
-                    return true;
-                }
+            } else {
+                sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
             }
         }
 
-        return false;
+        return true;
     }
 }

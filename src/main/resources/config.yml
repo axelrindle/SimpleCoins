@@ -9,15 +9,9 @@
 # The name of your currency
 CoinsName: Coins
 
-# Should we implement Vault support?
-UseVault: true
-
-# Should players receive messages from Vault or from SimpleCoins?
-UseVaultMessages: false
-
 # Database Connection Settings
 Database:
-  # Should we use a MySQL Database or a local file?
+  # Should we use a MySQL Database instead of a local file?
   UseSQL: false
   
   # Database Host
@@ -47,7 +41,7 @@ Database:
 # %otherplayername% : Name of the (Specified in /sc get <player>) 
 # %coinname% : Name of the coins 
 # 
-# Use & + 1-9/a-f for colors. 
+# Use & + 1-9/a-f/k-o/R/r for colors.
 Messages:
 
   # Message when someone receives coins

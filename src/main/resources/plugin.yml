@@ -1,9 +1,12 @@
 name: SimpleCoins
-version: 1.0.0
+version: 0.3
 main: de.lalo5.simplecoins.SimpleCoins
 softdepend: [Vault]
-website: http://dev.bukkit.org/bukkit-plugins/simplecoins/
+load: startup
+website: http://dev.bukkit.org/projects/simplecoins/
 commands:
   sc:
-    description: Main command
+    description: "Manage a Player's coin account."
     usage: /sc
+    aliases: [simplecoins]
+    permission: simplecoins.use
