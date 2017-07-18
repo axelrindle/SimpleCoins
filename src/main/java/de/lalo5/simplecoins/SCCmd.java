@@ -20,6 +20,7 @@ import static de.lalo5.simplecoins.SimpleCoins.*;
  *
  * Project MinecraftPlugins
  */
+@SuppressWarnings("deprecation")
 class SCCmd implements CommandExecutor {
 
     @Override
@@ -47,11 +48,11 @@ class SCCmd implements CommandExecutor {
                                 }
 
                                 CoinManager.addCoins(p_, amount);
-                                String message = fileConfiguration.getString("Messages.Coins_Received");
+                                String message = config.getString("Messages.Coins_Received");
                                 message = message.replaceAll("%amountrec%", String.valueOf(amount));
                                 message = message.replaceAll("%amount%", String.valueOf(CoinManager.getCoins(p_)));
                                 message = message.replaceAll("%playername%", p_.getName());
-                                message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
+                                message = message.replaceAll("%coinname%", config.getString("CoinsName"));
 
                                 p_.sendMessage(colorize(PREFIX + message));
                             } else {
@@ -59,7 +60,7 @@ class SCCmd implements CommandExecutor {
                             }
                         }
                     } else {
-                        sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                        sender.sendMessage(colorize(config.getString("Messages.NoPermission")));
                     }
                 } else if(args[0].equalsIgnoreCase("remove")) {
                     if(sender.hasPermission(Perms.REMOVE.perm())) {
@@ -80,25 +81,25 @@ class SCCmd implements CommandExecutor {
                                 if(now != 0) {
                                     if(amount <= now) {
                                         CoinManager.removeCoins(p_, amount);
-                                        String message = fileConfiguration.getString("Messages.Coins_Taken");
+                                        String message = config.getString("Messages.Coins_Taken");
                                         message = message.replaceAll("%amountrec%", String.valueOf(amount));
                                         message = message.replaceAll("%amount%", String.valueOf(CoinManager.getCoins(p_)));
                                         message = message.replaceAll("%playername%", p_.getName());
-                                        message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
+                                        message = message.replaceAll("%coinname%", config.getString("CoinsName"));
 
                                         p_.sendMessage(colorize(PREFIX + message));
                                     } else {
                                         sender.sendMessage(colorize("&cAmount muss be less than or equals to &2" + now));
                                     }
                                 } else {
-                                    sender.sendMessage(colorize("&cPlayer " + p_.getName() +  "has 0 &9" + fileConfiguration.getString("CoinsName") + "&c!"));
+                                    sender.sendMessage(colorize("&cPlayer " + p_.getName() +  "has 0 &9" + config.getString("CoinsName") + "&c!"));
                                 }
                             } else {
                                 sender.sendMessage(colorize("&cThis player does not exist!"));
                             }
                         }
                     } else {
-                        sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                        sender.sendMessage(colorize(config.getString("Messages.NoPermission")));
                     }
                 } else if(args[0].equalsIgnoreCase("set")) {
                     if(sender.hasPermission(Perms.SET.perm())) {
@@ -118,10 +119,10 @@ class SCCmd implements CommandExecutor {
                                 if(amount >= 0) {
                                     CoinManager.setCoins(p_, amount);
 
-                                    String message = fileConfiguration.getString("Messages.Coins_Set");
+                                    String message = config.getString("Messages.Coins_Set");
                                     message = message.replaceAll("%amount%", String.valueOf(CoinManager.getCoins(p_)));
                                     message = message.replaceAll("%playername%", p_.getName());
-                                    message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
+                                    message = message.replaceAll("%coinname%", config.getString("CoinsName"));
 
                                     p_.sendMessage(colorize(PREFIX + message));
                                 } else {
@@ -132,7 +133,7 @@ class SCCmd implements CommandExecutor {
                             }
                         }
                     } else {
-                        sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                        sender.sendMessage(colorize(config.getString("Messages.NoPermission")));
                     }
                 } else if(args[0].equalsIgnoreCase("get")) {
                     if(args.length == 2) {
@@ -142,11 +143,11 @@ class SCCmd implements CommandExecutor {
                             if(p_ != null) {
                                 double amount = CoinManager.getCoins(p_);
 
-                                String message = fileConfiguration.getString("Messages.Coins_Get_Other");
+                                String message = config.getString("Messages.Coins_Get_Other");
                                 message = message.replaceAll("%amount%", String.valueOf(amount));
                                 message = message.replaceAll("%playername%", sender.getName());
                                 message = message.replaceAll("%otherplayername%", p_.getName());
-                                message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
+                                message = message.replaceAll("%coinname%", config.getString("CoinsName"));
 
                                 sender.sendMessage(colorize(PREFIX + message));
                             } else {
@@ -154,21 +155,21 @@ class SCCmd implements CommandExecutor {
                             }
 
                         } else {
-                            sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                            sender.sendMessage(colorize(config.getString("Messages.NoPermission")));
                         }
                     } else if(args.length == 1) {
                         if(sender instanceof Player) {
                             if(sender.hasPermission(Perms.GETSELF.perm())) {
                                 double amount = CoinManager.getCoins((Player)sender);
 
-                                String message = fileConfiguration.getString("Messages.Coins_Get_Self");
+                                String message = config.getString("Messages.Coins_Get_Self");
                                 message = message.replaceAll("%amount%", String.valueOf(amount));
                                 message = message.replaceAll("%playername%", sender.getName());
-                                message = message.replaceAll("%coinname%", fileConfiguration.getString("CoinsName"));
+                                message = message.replaceAll("%coinname%", config.getString("CoinsName"));
 
                                 sender.sendMessage(colorize(PREFIX + message));
                             } else {
-                                sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                                sender.sendMessage(colorize(config.getString("Messages.NoPermission")));
                             }
                         } else {
                             sender.sendMessage("§4The Console does not have a coin account!");
@@ -179,22 +180,22 @@ class SCCmd implements CommandExecutor {
                         if(args.length == 1) {
                             try {
                                 if(useSQL) {
-                                    sqlManager.closeConnection();
+                                    sqlManager.disconnect();
                                     sqlManager.connect();
                                 } else {
-                                    fileConfiguration.save(configFile);
-                                    fileConfiguration = YamlConfiguration.loadConfiguration(configFile);
+                                    config.save(configFile);
                                     CoinManager.saveFiles();
+                                    config = YamlConfiguration.loadConfiguration(configFile);
                                     CoinManager.loadFiles();
                                 }
 
-                                sender.sendMessage(colorize(PREFIX + fileConfiguration.getString("Messages.Reload")));
+                                sender.sendMessage(colorize(PREFIX + config.getString("Messages.Reload")));
                             } catch (SQLException | IOException e) {
                                 e.printStackTrace();
                             }
                         }
                     } else {
-                        sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                        sender.sendMessage(colorize(config.getString("Messages.NoPermission")));
                     }
                 } /*else if(args[0].equalsIgnoreCase("sync")) {
                         if(sender.hasPermission(Perms.SYNC.perm())) {
@@ -216,7 +217,7 @@ class SCCmd implements CommandExecutor {
                         }
                     }*/
             } else {
-                sender.sendMessage(colorize(fileConfiguration.getString("Messages.NoPermission")));
+                sender.sendMessage(colorize(config.getString("Messages.NoPermission")));
             }
         }
 

@@ -1,10 +1,12 @@
 package de.lalo5.simplecoins;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import java.sql.*;
-
-import static de.lalo5.simplecoins.SimpleCoins.*;
+import static de.lalo5.simplecoins.SimpleCoins.CONSOLEPREFIX;
 import static de.lalo5.simplecoins.SimpleCoins.LOGGER;
 
 /**
@@ -71,7 +73,7 @@ class SqlManager {
      */
     void createTable() throws SQLException {
         executeStatement(
-                "CREATE TABLE IF NOT EXISTS `minecraft`.`" + tableName + "` " +
+                "CREATE TABLE IF NOT EXISTS `" + databaseName +"`.`" + tableName + "` " +
                         "( `UUID` TEXT NOT NULL COMMENT 'Players UUID' , " +
                         "`Name` TEXT NOT NULL COMMENT 'Players Name' , " +
                         "`Coins` DOUBLE NOT NULL COMMENT 'Players amount of coins' , " +
@@ -86,7 +88,7 @@ class SqlManager {
      *
      * @throws SQLException If an exception occurs while trying to close the connection.
      */
-    void closeConnection() throws SQLException {
+    void disconnect() throws SQLException {
         conn.close();
         LOGGER.info(CONSOLEPREFIX + "Successfully disconnected from the MySQL database.");
     }
@@ -107,7 +109,7 @@ class SqlManager {
     /**
      * Executes an SQL statement on the database.
      * <br>
-     * Returns nothing. Useful for <b>SELECT</b> statements.
+     * Returns a {@link ResultSet}. Useful for <b>SELECT</b> statements.
      *
      * @param command The command (or query) to execute.
      *

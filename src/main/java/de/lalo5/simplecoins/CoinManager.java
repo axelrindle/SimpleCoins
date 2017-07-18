@@ -7,8 +7,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,11 +20,13 @@ import java.util.UUID;
 /**
  * The <b>CoinManager</b> is used to modify the account balance of a {@link Player}.
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings("WeakerAccess")
 public final class CoinManager {
 
     private static File coinFile;
     private static FileConfiguration config;
+
+    public static final int fractionalDigits = 2;
 
     /**
      * Loads the {@link #config} from the filesystem.
@@ -71,18 +71,6 @@ public final class CoinManager {
         return config.contains(uuid);
     }
 
-    /**
-     * Check if a specific {@link Player} has an account.
-     *
-     * @param player The Player to check.
-     *
-     * @return <code>true</code> if the specified Player has an account, <code>false</code> otherwise.
-     */
-    public static boolean hasPlayer(@NotNull Player player) {
-        UUID uuid = player.getUniqueId();
-        return hasPlayer(uuid.toString());
-    }
-
     public static double getCoins(UUID uuid) {
         return getCoins(Bukkit.getPlayer(uuid));
     }
@@ -96,7 +84,7 @@ public final class CoinManager {
      * @return The amount of coins the specified player has, as a <code>double</code> value to support <b>Vault's economy system</b>.
      */
     @SuppressWarnings("ConstantConditions")
-    public static double getCoins(@NotNull Player player) {
+    public static double getCoins(Player player) {
         String uuid = player.getUniqueId().toString();
 
         double i = 0;
@@ -108,28 +96,34 @@ public final class CoinManager {
                 i = config.getDouble(uuid + ".Coins");
             }
         } else {
-            String tableName = SimpleCoins.fileConfiguration.getString("Database.TableName");
+            String tableName = SimpleCoins.config.getString("Database.TableName");
             try {
-                ResultSet rs = SimpleCoins.sqlManager.returnValue("SELECT `Coins` FROM `" + tableName + "` WHERE `UUID` = '" + uuid + "'");
-                if(!rs.next()) {
-                    SimpleCoins.sqlManager.executeStatement("INSERT INTO `" + tableName + "` (`UUID`, `Name`, `Coins`) VALUES ('" + uuid + "', '" + player.getName() + "', '0');");
+                ResultSet rs = SimpleCoins.sqlManager.returnValue(
+                        "SELECT `Coins` " +
+                                "FROM `" + tableName + "` " +
+                                "WHERE `UUID` = '" + uuid + "'"
+                );
+                if(!rs.next()) { // if ResultSet is empty (no account for player), create an account
+                    SimpleCoins.sqlManager.executeStatement(
+                            "INSERT INTO `" + tableName + "` " +
+                                    "(`UUID`, `Name`, `Coins`) " +
+                                    "VALUES ('" + uuid + "', '" + player.getName() + "', '0');"
+                    );
                     i = 0;
                 } else {
                     i = rs.getDouble("Coins");
                 }
                 rs.getStatement().close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } catch (NullPointerException e1) {
+            } catch (SQLException | NullPointerException e) {
                 SimpleCoins.LOGGER.severe("Failed to retrieve coin amount from database!");
-                e1.printStackTrace();
+                e.printStackTrace();
             }
         }
 
         return i;
     }
 
-    public static void addCoins(@NotNull UUID uuid, double amount) {
+    public static void addCoins(UUID uuid, double amount) {
         addCoins(Bukkit.getPlayer(uuid), amount);
     }
 
@@ -139,26 +133,26 @@ public final class CoinManager {
      * @param player The Player to give coins to.
      * @param amount The amount of coins to give to the player.
      */
-    public static void addCoins(@NotNull Player player, double amount) {
+    public static void addCoins(Player player, double amount) {
         double old = getCoins(player);
         double n = add(old, round(amount, 2));
         setCoins(player, n);
     }
 
-    public static void removeCoins(@NotNull UUID uuid, double amount) {
+    public static void removeCoins(UUID uuid, double amount) {
         removeCoins(Bukkit.getPlayer(uuid), amount);
     }
 
     /**
      * Removes a specific amount of coins from a Player's amount.
      * <br>
-     * The amount you specify <b>must</b> be more than zero and <b>should</b> be less or equal to the amount of coins the player owns, otherwise
-     * it's set to <b>zero</b>.
+     * The amount you specify <b>must</b> be more than zero and <b>should</b> be less or equal to the amount of
+     * coins the player owns, otherwise it's set to <b>zero</b>.
      *
      * @param player The Player to remove amount from.
      * @param amount The amount of coins to remove from the player's account.
      */
-    public static void removeCoins(@NotNull Player player, double amount) {
+    public static void removeCoins(Player player, double amount) {
         double old = getCoins(player);
         double rAmount = round(amount, 2);
 
@@ -186,10 +180,13 @@ public final class CoinManager {
                 config.set(uuid + ".Coins", amount);
                 saveFiles();
             } else {
-                String dbname = SimpleCoins.fileConfiguration.getString("Database.TableName");
+                String dbname = SimpleCoins.config.getString("Database.TableName");
                 try {
                     SimpleCoins.sqlManager.executeStatement(
-                            "UPDATE `" + dbname + "` SET `Coins` = '" + amount + "' WHERE `" + dbname + "`.`UUID` = '" + uuid + "' LIMIT 1 "
+                            "UPDATE `" + dbname + "` " +
+                                    "SET `Coins` = '" + amount + "' " +
+                                    "WHERE `" + dbname + "`.`UUID` = '" + uuid + "' " +
+                                    "LIMIT 1 "
                     );
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -198,11 +195,11 @@ public final class CoinManager {
         }
     }
 
-    public static double add(double val1, double val2) {
+    private static double add(double val1, double val2) {
         return new BigDecimal(val1).add(new BigDecimal(val2)).doubleValue();
     }
 
-    public static double subtract(double val1, double val2) {
+    private static double subtract(double val1, double val2) {
         return new BigDecimal(val1).subtract(new BigDecimal(val2)).doubleValue();
     }
 
@@ -214,9 +211,9 @@ public final class CoinManager {
      *
      * @return The rounded <code>value</code> value.
      */
-    @SuppressWarnings("SameParameterValue")
     public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException("Can't round to an amount of decimal places smaller than 0!");
+        if (places < 0)
+            throw new IllegalArgumentException("Can't round to an amount of decimal places smaller than 0!");
 
         BigDecimal bd = new BigDecimal(value);
         bd = bd.setScale(places, RoundingMode.HALF_UP);
@@ -225,17 +222,24 @@ public final class CoinManager {
 
     /**
      * Syncing Modes.
-     * <br>
-     * To decide whether we should overwrite the MySQL Database with the local database or the local database with the MySQL Database.
      */
     enum SyncMode {
+        /**
+         * <b>UPLOAD</b> overwrites the <b>database entries</b> with the <b>local config</b>.
+         */
         UPLOAD,
+
+        /**
+         * <b>DOWNLOAD</b> overwrites the <b>local config</b> with the <b>database entries</b>
+         */
         DOWNLOAD
     }
+
     /**
-     * Synchronizes the coin database.
-     * <br><br>
-     * If
+     * Synchronizes the coin database. Overwrites either the <b>local</b> or the <b>database</b> information.
+     * <br>
+     * This is useful if you want to save your <b>local entries</b> to the <b>database</b> or vice versa.
+     *
      * @param mode Either {@link SyncMode#DOWNLOAD} or {@link SyncMode#UPLOAD}.
      */
     static void sync(SyncMode mode) {
@@ -243,23 +247,23 @@ public final class CoinManager {
         // TODO: 26.12.16 (2) Do syncing in an own thread
         if(mode == SyncMode.DOWNLOAD) {
             loadFiles();
-
-
         } else if(mode == SyncMode.UPLOAD) {
             try {
                 SimpleCoins.initMySQL();
                 SimpleCoins.sqlManager.executeStatement("DROP TABLE IF EXISTS simplecoins");
                 SimpleCoins.sqlManager.createTable();
 
-                Bukkit.broadcastMessage(SimpleCoins.CONSOLEPREFIX + "Syncing data to the MySQL database! Lags may occure!");
-
                 for(String uuid : config.getKeys(false)) {
                     String name = config.getString(uuid + "Name");
                     double coins = config.getDouble(uuid + "Coins");
 
-                    String dbname = SimpleCoins.fileConfiguration.getString("Database.TableName").toLowerCase();
+                    String dbname = SimpleCoins.config.getString("Database.TableName").toLowerCase();
 
-                    SimpleCoins.sqlManager.executeStatement("INSERT INTO `" + dbname + "` (`UUID`, `Name`, `Coins`) VALUES ('" + uuid + "', '" + name + "', '" + coins + "');");
+                    SimpleCoins.sqlManager.executeStatement(
+                            "INSERT INTO `" + dbname + "` " +
+                                    "(`UUID`, `Name`, `Coins`) " +
+                                    "VALUES ('" + uuid + "', '" + name + "', '" + coins + "');"
+                    );
                 }
 
                 Bukkit.broadcastMessage(SimpleCoins.CONSOLEPREFIX + "Finished the data synchronisation!");
@@ -274,32 +278,26 @@ public final class CoinManager {
      */
     public static final class SimpleEconomy implements Economy {
 
-        @Contract(value = " -> true", pure = true)
         @Override
         public boolean isEnabled() {
             return true;
         }
 
-        @NotNull
-        @Contract(pure = true)
         @Override
         public String getName() {
             return "SimpleCoins";
         }
 
-        @Contract(value = " -> false", pure = true)
         @Override
         public boolean hasBankSupport() {
             return false;
         }
 
-        @Contract(pure = true)
         @Override
         public int fractionalDigits() {
-            return 2;
+            return fractionalDigits;
         }
 
-        @NotNull
         @Override
         public String format(double v) {
             return String.valueOf(CoinManager.round(v, fractionalDigits()));
@@ -307,15 +305,14 @@ public final class CoinManager {
 
         @Override
         public String currencyNamePlural() {
-            return SimpleCoins.fileConfiguration.getString("CoinsName");
+            return SimpleCoins.config.getString("CoinsName");
         }
 
         @Override
         public String currencyNameSingular() {
-            return SimpleCoins.fileConfiguration.getString("CoinsName");
+            return currencyNamePlural();
         }
 
-        @Contract(value = "_ -> false", pure = true)
         @Override
         @Deprecated
         public boolean hasAccount(String s) {
@@ -327,7 +324,6 @@ public final class CoinManager {
             return CoinManager.hasPlayer(offlinePlayer.getUniqueId().toString());
         }
 
-        @Contract(value = "_, _ -> false", pure = true)
         @Override
         @Deprecated
         public boolean hasAccount(String s, String s1) {
@@ -339,7 +335,6 @@ public final class CoinManager {
             return CoinManager.hasPlayer(offlinePlayer.getUniqueId().toString());
         }
 
-        @Contract(pure = true)
         @Override
         @Deprecated
         public double getBalance(String s) {
@@ -351,7 +346,6 @@ public final class CoinManager {
             return CoinManager.getCoins(offlinePlayer.getUniqueId());
         }
 
-        @Contract(pure = true)
         @Deprecated
         @Override
         public double getBalance(String s, String s1) {
@@ -363,7 +357,6 @@ public final class CoinManager {
             return CoinManager.getCoins(offlinePlayer.getUniqueId());
         }
 
-        @Contract(value = "_, _ -> false", pure = true)
         @Deprecated
         @Override
         public boolean has(String s, double v) {
@@ -376,7 +369,6 @@ public final class CoinManager {
             return CoinManager.getCoins(offlinePlayer.getUniqueId()) >= v;
         }
 
-        @Contract(value = "_, _, _ -> false", pure = true)
         @Deprecated
         @Override
         public boolean has(String s, String s1, double v) {
@@ -389,7 +381,6 @@ public final class CoinManager {
             return CoinManager.getCoins(offlinePlayer.getUniqueId()) >= v;
         }
 
-        @Contract(value = "_, _ -> null", pure = true)
         @Deprecated
         @Override
         public EconomyResponse withdrawPlayer(String s, double v) {
@@ -407,7 +398,6 @@ public final class CoinManager {
             );
         }
 
-        @Contract(value = "_, _, _ -> null", pure = true)
         @Deprecated
         @Override
         public EconomyResponse withdrawPlayer(String s, String s1, double v) {
@@ -425,7 +415,6 @@ public final class CoinManager {
             );
         }
 
-        @Contract(value = "_, _ -> null", pure = true)
         @Deprecated
         @Override
         public EconomyResponse depositPlayer(String s, double v) {
@@ -443,7 +432,6 @@ public final class CoinManager {
             );
         }
 
-        @Contract(value = "_, _, _ -> null", pure = true)
         @Deprecated
         @Override
         public EconomyResponse depositPlayer(String s, String s1, double v) {
@@ -521,7 +509,6 @@ public final class CoinManager {
             return null;
         }
 
-        @Contract(value = "_ -> false", pure = true)
         @Deprecated
         @Override
         public boolean createPlayerAccount(String s) {
@@ -534,7 +521,6 @@ public final class CoinManager {
             return true;
         }
 
-        @Contract(value = "_, _ -> false", pure = true)
         @Deprecated
         @Override
         public boolean createPlayerAccount(String s, String s1) {

@@ -1,9 +1,9 @@
 package de.lalo5.simplecoins;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import de.lalo5.simplecoins.util.Perms;
 import net.milkbowl.vault.economy.Economy;
-import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -16,18 +16,13 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
 /**
  * Main Class of the SimpleCoins Bukkit Plugin.
  */
-@SuppressWarnings({"ResultOfMethodCallIgnored", "WeakerAccess"})
 public final class SimpleCoins extends JavaPlugin {
 
     static final String CONSOLEPREFIX = "[SimpleCoins] ";
@@ -39,9 +34,7 @@ public final class SimpleCoins extends JavaPlugin {
     static boolean useSQL;
 
     static File configFile;
-    static FileConfiguration fileConfiguration;
-
-    static Economy econ = null;
+    static FileConfiguration config;
 
     @Override
     public void onEnable() {
@@ -65,7 +58,7 @@ public final class SimpleCoins extends JavaPlugin {
         }
 
         try {
-            useSQL = fileConfiguration.getBoolean("Database.UseSQL");
+            useSQL = config.getBoolean("Database.UseSQL");
             if(!useSQL) {
                 LOGGER.info(CONSOLEPREFIX + "Using local database. (database.yml)");
                 CoinManager.loadFiles();
@@ -86,7 +79,6 @@ public final class SimpleCoins extends JavaPlugin {
             public void onLogin(PlayerLoginEvent event) {
                 CoinManager.getCoins(event.getPlayer()); // creates an account if the joined player does not have one.
             }
-
         }, this);
 
         if(loaded) {
@@ -103,7 +95,7 @@ public final class SimpleCoins extends JavaPlugin {
             if(!useSQL) {
                 CoinManager.saveFiles();
             } else {
-                sqlManager.closeConnection();
+                sqlManager.disconnect();
             }
         } catch (SQLException e) {
             LOGGER.info(CONSOLEPREFIX + "Couldn't close database connection! Maybe there have never been a connection?");
@@ -146,9 +138,9 @@ public final class SimpleCoins extends JavaPlugin {
     }
 
     /**
-     * Sends the specified Player messages with all commands he may execute.
+     * Sends the specified Player chat with all commands he may execute.
      *
-     * @param sender The player to send the messages to.
+     * @param sender The player to send the chat to.
      */
     static void sendHelp(CommandSender sender) {
         sender.sendMessage(colorize(PREFIX + "Commands:"));
@@ -174,7 +166,7 @@ public final class SimpleCoins extends JavaPlugin {
     }
 
     /**
-     * Loads the {@link #fileConfiguration} from the filesystem.
+     * Loads the {@link #config} from the filesystem.
      * <br>
      * If it does not exist, it will be created with default values.
      *
@@ -184,30 +176,30 @@ public final class SimpleCoins extends JavaPlugin {
         configFile = new File("plugins/SimpleCoins/config.yml");
         if(!configFile.exists()) {
             Files.createParentDirs(configFile);
+            //noinspection ResultOfMethodCallIgnored
             configFile.createNewFile();
 
-            InputStream c = getClass().getResourceAsStream("/config.yml");
-            FileWriter writer = new FileWriter(configFile);
-            IOUtils.copy(c, writer, StandardCharsets.UTF_8);
-            writer.close();
-            c.close();
+            InputStream is = getClass().getResourceAsStream("/config.yml");
+            OutputStream os = new FileOutputStream(configFile);
+            ByteStreams.copy(is, os);
+            os.close();
+            is.close();
         }
-
-        fileConfiguration = YamlConfiguration.loadConfiguration(configFile);
+        config = YamlConfiguration.loadConfiguration(configFile);
     }
 
     /**
-     * Initializes the {@link SqlManager} with the values from the {@link #fileConfiguration}.
+     * Initializes the {@link SqlManager} with the values from the {@link #config}.
      *
      * @throws SQLException If the {@link SqlManager} could not be initialized.
      */
     static void initMySQL() throws SQLException {
-        String host = fileConfiguration.getString("Database.Host");
-        int port = fileConfiguration.getInt("Database.Port");
-        String dbName = fileConfiguration.getString("Database.DatabaseName");
-        String tableName = fileConfiguration.getString("Database.TableName");
-        String username = fileConfiguration.getString("Database.Username");
-        String password = fileConfiguration.getString("Database.Password");
+        String host = config.getString("Database.Host");
+        int port = config.getInt("Database.Port");
+        String dbName = config.getString("Database.DatabaseName");
+        String tableName = config.getString("Database.TableName");
+        String username = config.getString("Database.Username");
+        String password = config.getString("Database.Password");
         sqlManager = new SqlManager(host, port, dbName, tableName, username, password);
         sqlManager.connect();
         sqlManager.createTable();

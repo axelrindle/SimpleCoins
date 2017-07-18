@@ -29,11 +29,11 @@ Database:
   # The username to connect with
   Username: username
   
-  # The password to authentificate the user
+  # The password to authenticate the user
   Password: password
   
 # Configurable message (more to come)
-# You may use the following placeholders in messages:
+# You may use the following placeholders in chat:
 # 
 # %amountrec% : Amount of received coins (Only in add/remove) 
 # %amount% : Amount of coins in account (Everywhere) 
