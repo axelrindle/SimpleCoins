@@ -61,7 +61,7 @@ public final class SimpleCoins extends JavaPlugin {
             useSQL = config.getBoolean("Database.UseSQL");
             if(!useSQL) {
                 LOGGER.info(CONSOLEPREFIX + "Using local database. (database.yml)");
-                CoinManager.loadFiles();
+                CoinManager.loadConfig();
             } else {
                 LOGGER.info(CONSOLEPREFIX + "Using MySQL database.");
                 initMySQL();
@@ -93,7 +93,7 @@ public final class SimpleCoins extends JavaPlugin {
 
         try {
             if(!useSQL) {
-                CoinManager.saveFiles();
+                CoinManager.saveConfig();
             } else {
                 sqlManager.disconnect();
             }
@@ -123,7 +123,12 @@ public final class SimpleCoins extends JavaPlugin {
      * Initializes Vault's economy system.
      */
     private void setupEconomy() {
-        getServer().getServicesManager().register(Economy.class, new CoinManager.SimpleEconomy(), this, ServicePriority.Normal);
+        getServer().getServicesManager().register(
+                Economy.class,
+                new CoinManager.SimpleEconomy(),
+                this,
+                ServicePriority.Normal
+        );
     }
 
     /**
@@ -176,14 +181,14 @@ public final class SimpleCoins extends JavaPlugin {
         configFile = new File("plugins/SimpleCoins/config.yml");
         if(!configFile.exists()) {
             Files.createParentDirs(configFile);
-            //noinspection ResultOfMethodCallIgnored
-            configFile.createNewFile();
-
-            InputStream is = getClass().getResourceAsStream("/config.yml");
-            OutputStream os = new FileOutputStream(configFile);
-            ByteStreams.copy(is, os);
-            os.close();
-            is.close();
+            boolean created = configFile.createNewFile();
+            if (created) {
+                InputStream is = getClass().getResourceAsStream("/config.yml");
+                OutputStream os = new FileOutputStream(configFile);
+                ByteStreams.copy(is, os);
+                os.close();
+                is.close();
+            }
         }
         config = YamlConfiguration.loadConfiguration(configFile);
     }

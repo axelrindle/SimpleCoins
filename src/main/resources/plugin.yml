@@ -1,5 +1,5 @@
 name: SimpleCoins
-version: 0.3
+version: 0.4
 main: de.lalo5.simplecoins.SimpleCoins
 softdepend: [Vault]
 load: startup

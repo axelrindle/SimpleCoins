@@ -62,7 +62,6 @@ class SqlManager {
     void connect() throws SQLException {
         String url = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
         conn = DriverManager.getConnection(url, username, password);
-
         LOGGER.info(CONSOLEPREFIX + "Successfully connected to the MySQL database.");
     }
 
@@ -80,7 +79,7 @@ class SqlManager {
                         "UNIQUE `UUID` (`UUID`(36))) " +
                         "ENGINE = InnoDB CHARSET=utf8 COLLATE utf8_general_ci COMMENT = 'SimpleCoins account storage';"
         );
-        LOGGER.info("Created table " + tableName + ".");
+        LOGGER.info(CONSOLEPREFIX + "Created table " + tableName + ".");
     }
 
     /**

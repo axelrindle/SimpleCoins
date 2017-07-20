@@ -17,6 +17,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
+import static de.lalo5.simplecoins.SimpleCoins.CONSOLEPREFIX;
+import static de.lalo5.simplecoins.SimpleCoins.sqlManager;
+import static de.lalo5.simplecoins.SimpleCoins.useSQL;
+
 /**
  * The <b>CoinManager</b> is used to modify the account balance of a {@link Player}.
  */
@@ -31,7 +35,7 @@ public final class CoinManager {
     /**
      * Loads the {@link #config} from the filesystem.
      */
-    static void loadFiles() {
+    static void loadConfig() {
         coinFile = new File("plugins/SimpleCoins/database.yml");
         config = YamlConfiguration.loadConfiguration(coinFile);
 
@@ -46,13 +50,13 @@ public final class CoinManager {
         config.options().copyHeader(true);
         config.options().copyDefaults(true);
 
-        saveFiles();
+        saveConfig();
     }
 
     /**
      * Saves the {@link #config}
      */
-    static void saveFiles() {
+    static void saveConfig() {
         try {
             config.save(coinFile);
         } catch (IOException e) {
@@ -88,23 +92,23 @@ public final class CoinManager {
         String uuid = player.getUniqueId().toString();
 
         double i = 0;
-        if(!SimpleCoins.useSQL) {
+        if(!useSQL) {
             if(!hasPlayer(uuid)) {
                 config.addDefault(uuid + ".Coins", 0D);
-                saveFiles();
+                saveConfig();
             } else {
                 i = config.getDouble(uuid + ".Coins");
             }
         } else {
             String tableName = SimpleCoins.config.getString("Database.TableName");
             try {
-                ResultSet rs = SimpleCoins.sqlManager.returnValue(
+                ResultSet rs = sqlManager.returnValue(
                         "SELECT `Coins` " +
                                 "FROM `" + tableName + "` " +
                                 "WHERE `UUID` = '" + uuid + "'"
                 );
                 if(!rs.next()) { // if ResultSet is empty (no account for player), create an account
-                    SimpleCoins.sqlManager.executeStatement(
+                    sqlManager.executeStatement(
                             "INSERT INTO `" + tableName + "` " +
                                     "(`UUID`, `Name`, `Coins`) " +
                                     "VALUES ('" + uuid + "', '" + player.getName() + "', '0');"
@@ -176,13 +180,13 @@ public final class CoinManager {
         getCoins(player);
 
         if(amount >= 0) {
-            if(!SimpleCoins.useSQL) {
+            if(!useSQL) {
                 config.set(uuid + ".Coins", amount);
-                saveFiles();
+                saveConfig();
             } else {
                 String dbname = SimpleCoins.config.getString("Database.TableName");
                 try {
-                    SimpleCoins.sqlManager.executeStatement(
+                    sqlManager.executeStatement(
                             "UPDATE `" + dbname + "` " +
                                     "SET `Coins` = '" + amount + "' " +
                                     "WHERE `" + dbname + "`.`UUID` = '" + uuid + "' " +
@@ -246,12 +250,12 @@ public final class CoinManager {
         // TODO: 26.12.16 (1) Finish the upload/download process
         // TODO: 26.12.16 (2) Do syncing in an own thread
         if(mode == SyncMode.DOWNLOAD) {
-            loadFiles();
+            loadConfig();
         } else if(mode == SyncMode.UPLOAD) {
             try {
                 SimpleCoins.initMySQL();
-                SimpleCoins.sqlManager.executeStatement("DROP TABLE IF EXISTS simplecoins");
-                SimpleCoins.sqlManager.createTable();
+                sqlManager.executeStatement("DROP TABLE IF EXISTS `simplecoins`");
+                sqlManager.createTable();
 
                 for(String uuid : config.getKeys(false)) {
                     String name = config.getString(uuid + "Name");
@@ -259,14 +263,14 @@ public final class CoinManager {
 
                     String dbname = SimpleCoins.config.getString("Database.TableName").toLowerCase();
 
-                    SimpleCoins.sqlManager.executeStatement(
+                    sqlManager.executeStatement(
                             "INSERT INTO `" + dbname + "` " +
                                     "(`UUID`, `Name`, `Coins`) " +
                                     "VALUES ('" + uuid + "', '" + name + "', '" + coins + "');"
                     );
                 }
 
-                Bukkit.broadcastMessage(SimpleCoins.CONSOLEPREFIX + "Finished the data synchronisation!");
+                Bukkit.broadcastMessage(CONSOLEPREFIX + "Finished the data synchronisation!");
             } catch (SQLException e) {
                 e.printStackTrace();
             }

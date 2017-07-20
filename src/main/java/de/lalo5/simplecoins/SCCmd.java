@@ -183,14 +183,13 @@ class SCCmd implements CommandExecutor {
                                     sqlManager.disconnect();
                                     sqlManager.connect();
                                 } else {
-                                    config.save(configFile);
-                                    CoinManager.saveFiles();
+                                    CoinManager.saveConfig();
                                     config = YamlConfiguration.loadConfiguration(configFile);
-                                    CoinManager.loadFiles();
+                                    CoinManager.loadConfig();
                                 }
 
                                 sender.sendMessage(colorize(PREFIX + config.getString("Messages.Reload")));
-                            } catch (SQLException | IOException e) {
+                            } catch (SQLException e) {
                                 e.printStackTrace();
                             }
                         }
