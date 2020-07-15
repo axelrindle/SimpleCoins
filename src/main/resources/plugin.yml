@@ -1,12 +1,12 @@
 name: SimpleCoins
-version: 0.4
-main: de.lalo5.simplecoins.SimpleCoins
+version: @VERSION@
+main: de.axelrindle.simplecoins.SimpleCoins
+depend: [PocketKnife]
 softdepend: [Vault]
-load: startup
 website: http://dev.bukkit.org/projects/simplecoins/
 commands:
-  sc:
+  simplecoins:
     description: "Manage a Player's coin account."
-    usage: /sc
-    aliases: [simplecoins]
+    usage: /simplecoins
+    aliases: [sc]
     permission: simplecoins.use

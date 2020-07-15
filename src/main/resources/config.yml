@@ -23,9 +23,6 @@ Database:
   # Database in which the table will be created
   DatabaseName: minecraft
   
-  # Table in which the accounts will be stored
-  TableName: SimpleCoins
-  
   # The username to connect with
   Username: username
   
