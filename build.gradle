@@ -1,21 +1,71 @@
-apply plugin: 'java'
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.3.31"
+    id "org.jetbrains.kotlin.kapt" version "1.3.31"
+}
+
+group = 'de.axelrindle'
+version = '0.4'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = targetCompatibility
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = targetCompatibility
+    }
+}
+
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
+}
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven { url = "http://nexus.hc.to/content/repositories/pub_releases" }
-    maven { url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
-    maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    maven { url 'https://jitpack.io' }
+    maven { url "http://nexus.hc.to/content/repositories/pub_releases" }
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT'
-    compileOnly 'org.bukkit:bukkit:1.12-R0.1-SNAPSHOT'
-    compileOnly 'net.milkbowl.vault:VaultAPI:1.6'
+    // Kotlin stdlib
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.31'
 
-    compile 'com.google.guava:guava:22.0'
+    // APIs
+    compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
+    compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
+    compileOnly 'com.github.axelrindle:PocketKnife:2.0.0'
+
+    // Dependencies
+    compile group: 'javax.annotation', name: 'javax.annotation-api', version: '1.3.2'
+    compile 'io.requery:requery:1.5.1'
+    compile 'io.requery:requery-kotlin:1.5.1'
+    kapt 'io.requery:requery-processor:1.5.1'
+    compile group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.5.0'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.12'
+    compile 'io.github.rybalkinsd:kohttp:0.8.0'
 }
 
 jar {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+processResources {
+    filter { String line ->
+        line.replaceAll("@VERSION@", project.version.toString())
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
 }
