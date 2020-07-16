@@ -8,12 +8,10 @@ import de.axelrindle.simplecoins.command.util.CoinCommand
  */
 internal class AddCommand : CoinCommand() {
 
+    override val localizedName: String = "Add"
+
     override fun getName(): String {
         return "add"
-    }
-
-    override fun getDescription(): String {
-        return localize("Commands.Add")
     }
 
     override fun getUsage(): String {

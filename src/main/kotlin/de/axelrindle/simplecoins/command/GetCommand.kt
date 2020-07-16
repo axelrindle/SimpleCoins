@@ -13,12 +13,10 @@ import org.bukkit.entity.Player
  */
 internal class GetCommand : CoinCommand() {
 
+    override val localizedName: String = "Get"
+
     override fun getName(): String {
         return "get"
-    }
-
-    override fun getDescription(): String {
-        return localize("Commands.Get")
     }
 
     override fun getUsage(): String {

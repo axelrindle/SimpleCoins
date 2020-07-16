@@ -9,8 +9,18 @@ import org.bukkit.command.CommandSender
  */
 abstract class LocalizedCommand : PocketCommand() {
 
+    /**
+     * Defines the localized name of this command used to localized
+     * the command description.
+     */
+    protected abstract val localizedName: String
+
     protected fun localize(key: String, vararg args: Any?): String {
         return SimpleCoins.get().pocketLang.localize(key, *args)!!
+    }
+
+    final override fun getDescription(): String {
+        return localize("Commands.$localizedName")
     }
 
     final override fun messageNoMatch(input: String): String {

@@ -8,12 +8,10 @@ import de.axelrindle.simplecoins.command.util.CoinCommand
  */
 internal class SetCommand : CoinCommand() {
 
+    override val localizedName: String = "Set"
+
     override fun getName(): String {
         return "set"
-    }
-
-    override fun getDescription(): String {
-        return localize("Commands.Set")
     }
 
     override fun getUsage(): String {

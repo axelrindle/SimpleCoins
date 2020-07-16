@@ -7,12 +7,10 @@ import org.bukkit.command.CommandSender
 
 internal class SimpleCoinsCommand : LocalizedCommand() {
 
+    override val localizedName: String = "Main"
+
     override fun getName(): String {
         return "simplecoins"
-    }
-
-    override fun getDescription(): String {
-        return SimpleCoins.get().pocketLang.localize("Commands.Main")!!
     }
 
     override val subCommands: ArrayList<PocketCommand> = arrayListOf(

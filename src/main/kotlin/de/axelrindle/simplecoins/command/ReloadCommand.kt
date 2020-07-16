@@ -8,12 +8,10 @@ import org.bukkit.command.CommandSender
 
 internal class ReloadCommand : LocalizedCommand() {
 
+    override val localizedName: String = "Reload"
+
     override fun getName(): String {
         return "reload"
-    }
-
-    override fun getDescription(): String {
-        return localize("Commands.Reload")
     }
 
     override fun getPermission(): String {
