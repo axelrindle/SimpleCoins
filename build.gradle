@@ -6,22 +6,11 @@ plugins {
 group = 'de.axelrindle'
 version = '0.4'
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 compileKotlin {
-    kotlinOptions {
-        jvmTarget = targetCompatibility
-    }
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
 }
 compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = targetCompatibility
-    }
-}
-
-sourceSets {
-    main.java.srcDirs += 'src/main/kotlin'
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
 }
 
 repositories {
