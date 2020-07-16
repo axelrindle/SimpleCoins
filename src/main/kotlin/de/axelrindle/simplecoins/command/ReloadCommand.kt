@@ -1,19 +1,18 @@
 package de.axelrindle.simplecoins.command
 
-import de.axelrindle.pocketknife.PocketCommand
 import de.axelrindle.simplecoins.CoinManager
 import de.axelrindle.simplecoins.SimpleCoins
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
-internal class ReloadCommand : PocketCommand() {
+internal class ReloadCommand : LocalizedCommand() {
 
     override fun getName(): String {
         return "reload"
     }
 
     override fun getDescription(): String {
-        return "Reloads the configuration from disk."
+        return localize("Commands.Reload")
     }
 
     override fun getPermission(): String {
@@ -25,7 +24,7 @@ internal class ReloadCommand : PocketCommand() {
     }
 
     override fun handle(sender: CommandSender, command: Command, args: Array<out String>): Boolean {
-        sender.sendMessage("${SimpleCoins.prefix} §bReloading...")
+        sender.sendMessage("${SimpleCoins.prefix} §b${localize("Words.Reloading")}...")
 
         try {
             // unload the CoinManager
@@ -37,9 +36,9 @@ internal class ReloadCommand : PocketCommand() {
                 CoinManager.init(pocketConfig)
             }
 
-            sender.sendMessage("${SimpleCoins.prefix} §aDone.")
+            sender.sendMessage("${SimpleCoins.prefix} §a${localize("Words.Done")}.")
         } catch (e: Exception) {
-            sender.sendMessage("${SimpleCoins.prefix} §cSomething went wrong! Check the console for more information.")
+            sender.sendMessage("${SimpleCoins.prefix} §c${localize("Messages.Error.General")}")
             e.printStackTrace()
         }
 

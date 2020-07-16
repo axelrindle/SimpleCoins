@@ -17,7 +17,7 @@ internal class GetCommand : CoinCommand() {
     }
 
     override fun getDescription(): String {
-        return "Returns the amount of coins for yourself or the given player."
+        return localize("Commands.Get")
     }
 
     override fun getUsage(): String {
@@ -30,7 +30,7 @@ internal class GetCommand : CoinCommand() {
 
     override fun handle(sender: CommandSender, command: Command, args: Array<out String>): Boolean {
         if (sender !is Player && args.isEmpty()) {
-            sender.sendMessageF("&cThe console does not have any balance!")
+            sender.sendMessageF("&c" + localize("Messages.Error.ConsoleNoBalance"))
             return true
         }
 
@@ -39,7 +39,8 @@ internal class GetCommand : CoinCommand() {
 
         val currency = CoinManager.getCurrentName()
         val got = CoinManager.getCoins(player.uniqueId.toString())
-        sender.sendMessageF("${SimpleCoins.prefix} The player &a$targetName &rcurrently has &a$got $currency&r.")
+        sender.sendMessageF("${SimpleCoins.prefix} " +
+                localize("Messages.Coins.Current", targetName, got.toString(), currency))
 
         return true
     }

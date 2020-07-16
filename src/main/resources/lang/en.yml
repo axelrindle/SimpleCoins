@@ -1,0 +1,29 @@
+Commands:
+  Main: "Manage a Player's coin account."
+  Add: "Adds the given amount of coins to the account of the given player."
+  Remove: "Removes the given amount of coins from the account of the given player."
+  Get: "Returns the amount of coins for yourself or the given player."
+  Set: "Changes the amount of coins to the given amount."
+  Reload: "Reloads the configuration from disk."
+
+Words:
+  Done: "Done"
+  Help: "Help"
+  Reloading: "Reloading"
+
+Messages:
+  PocketKnife:
+    NoMatch: "Nothing matched '%s'!"
+    NoPermission: "You don't have permission to execute this command!"
+    NoPlayer: "A player is required to execute this command!"
+  Error:
+    ConsoleNoBalance: "The console does not have any balance!"
+    General: "Something went wrong! Check the console for more information."
+    InvalidAmountArguments: "Invalid amount of arguments!"
+    InvalidNumber: "'%s' is not a valid number!"
+    UnknownPlayer: "No player found by '%s'!"
+  Coins:
+    Current: "The player &a%s &rcurrently has &a%s %s&r."
+    NewBalance:
+      Sender: "§a%s §rnow has §a%s %s§r."
+      Receiver: "§aYou now have §b%s %s§r."

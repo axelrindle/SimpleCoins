@@ -16,7 +16,7 @@ internal class AddCommand : CoinCommand() {
     }
 
     override fun getDescription(): String {
-        return "Adds the given amount of coins to the account of the given player."
+        return localize("Commands.Add")
     }
 
     override fun getUsage(): String {
@@ -34,15 +34,17 @@ internal class AddCommand : CoinCommand() {
         try {
             amount = args[1].toDouble()
         } catch (e: NumberFormatException) {
-            sender.sendMessage("§c'${args[1]}' is not a valid number!")
+            sender.sendMessage("§c" + localize("Messages.Error.InvalidNumber", args[1]))
             return true
         }
 
         val currency = CoinManager.getCurrentName()
         val new = CoinManager.addCoins(player.uniqueId.toString(), amount)
-        sender.sendMessage("${SimpleCoins.prefix} §a${player.name} §rnow has §a$new $currency§r.")
+        sender.sendMessage("${SimpleCoins.prefix} " +
+                localize("Messages.Coins.NewBalance.Sender", player.name, new.toString(), currency))
         if (player.isOnline) {
-            (player as Player).sendMessage("${SimpleCoins.prefix} §aYou now have §b$new $currency§r.")
+            (player as Player).sendMessage("${SimpleCoins.prefix} " +
+                    localize("Messages.Coins.NewBalance.Receiver", new.toString(), currency))
         }
 
         return true

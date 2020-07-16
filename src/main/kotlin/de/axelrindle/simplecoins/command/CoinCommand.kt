@@ -1,6 +1,5 @@
 package de.axelrindle.simplecoins.command
 
-import de.axelrindle.pocketknife.PocketCommand
 import de.axelrindle.pocketknife.util.UUIDUtils
 import de.axelrindle.pocketknife.util.sendMessageF
 import org.bukkit.Bukkit
@@ -11,7 +10,7 @@ import java.util.*
 /**
  * Provides the base functionality for commands working with coin balances.
  */
-internal abstract class CoinCommand : PocketCommand() {
+internal abstract class CoinCommand : LocalizedCommand() {
 
     protected open fun validateArguments(args: Array<out String>): Boolean = true
 
@@ -31,7 +30,7 @@ internal abstract class CoinCommand : PocketCommand() {
     protected fun validate(args: Array<out String>, sender: CommandSender): OfflinePlayer? {
         // test amount of arguments
         if (validateArguments(args).not()) {
-            sender.sendMessageF("&cInvalid amount of arguments:")
+            sender.sendMessageF("&c" + localize("Messages.Error.InvalidAmountArguments"))
             sendHelp(sender)
             return null
         }
@@ -40,7 +39,7 @@ internal abstract class CoinCommand : PocketCommand() {
         val name = args[0]
         val player = getPlayer(name)
         if (player == null) {
-            sender.sendMessageF("&cNo player found by '$name'!")
+            sender.sendMessageF("&c" + localize("Messages.Error.UnknownPlayer", name))
             return null
         }
 

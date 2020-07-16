@@ -16,7 +16,7 @@ internal class RemoveCommand : CoinCommand() {
     }
 
     override fun getDescription(): String {
-        return "Removes the given amount of coins from the account of the given player."
+        return localize("Commands.Remove")
     }
 
     override fun getUsage(): String {
@@ -34,15 +34,17 @@ internal class RemoveCommand : CoinCommand() {
         try {
             amount = args[1].toDouble()
         } catch (e: NumberFormatException) {
-            sender.sendMessage("§c'${args[1]}' is not a valid number!")
+            sender.sendMessage("§c" + localize("Messages.Error.InvalidNumber", args[1]))
             return true
         }
 
         val currency = CoinManager.getCurrentName()
         val new = CoinManager.removeCoins(player.uniqueId.toString(), amount)
-        sender.sendMessage("${SimpleCoins.prefix} §a${player.name} §rnow has §a$new $currency§r.")
+        sender.sendMessage("${SimpleCoins.prefix} " +
+                localize("Messages.Coins.NewBalance.Sender", player.name, new.toString(), currency))
         if (player.isOnline) {
-            (player as Player).sendMessage("${SimpleCoins.prefix} §cYou now have §b$new $currency§r.")
+            (player as Player).sendMessage("${SimpleCoins.prefix} " +
+                    localize("Messages.Coins.NewBalance.Receiver", new.toString(), currency))
         }
 
         return true

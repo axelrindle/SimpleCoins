@@ -6,7 +6,6 @@ softdepend: [Vault]
 website: http://dev.bukkit.org/projects/simplecoins/
 commands:
   simplecoins:
-    description: "Manage a Player's coin account."
     usage: /simplecoins
     aliases: [sc]
     permission: simplecoins.use
