@@ -1,6 +1,7 @@
 package de.axelrindle.simplecoins.command.util
 
 import de.axelrindle.pocketknife.PocketCommand
+import de.axelrindle.pocketknife.PocketLang
 import de.axelrindle.simplecoins.SimpleCoins
 import org.bukkit.command.CommandSender
 
@@ -15,6 +16,11 @@ abstract class LocalizedCommand : PocketCommand() {
      */
     protected abstract val localizedName: String
 
+    /**
+     * Shorthand method for localizing a message.
+     *
+     * @see PocketLang.localize
+     */
     protected fun localize(key: String, vararg args: Any?): String {
         return SimpleCoins.get().pocketLang.localize(key, *args)!!
     }
