@@ -32,7 +32,7 @@ internal class ReloadCommand : PocketCommand() {
             CoinManager.close()
 
             // reload the config files and re-init the CoinManager
-            SimpleCoins.instance!!.apply {
+            SimpleCoins.get().apply {
                 pocketConfig.reloadAll()
                 CoinManager.init(pocketConfig)
             }

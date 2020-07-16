@@ -17,8 +17,11 @@ class SimpleCoins : JavaPlugin() {
     companion object {
         const val prefix = "§6SimpleCoins §r>"
 
-        var instance: SimpleCoins? = null
-            private set
+        private var instance: SimpleCoins? = null
+
+        fun get(): SimpleCoins {
+            return instance!!
+        }
     }
 
     internal val pocketConfig: PocketConfig = PocketConfig(this)
