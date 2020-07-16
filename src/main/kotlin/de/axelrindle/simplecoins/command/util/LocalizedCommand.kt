@@ -1,4 +1,4 @@
-package de.axelrindle.simplecoins.command
+package de.axelrindle.simplecoins.command.util
 
 import de.axelrindle.pocketknife.PocketCommand
 import de.axelrindle.simplecoins.SimpleCoins

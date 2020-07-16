@@ -3,6 +3,7 @@ package de.axelrindle.simplecoins.command
 import de.axelrindle.pocketknife.util.sendMessageF
 import de.axelrindle.simplecoins.CoinManager
 import de.axelrindle.simplecoins.SimpleCoins
+import de.axelrindle.simplecoins.command.util.CoinCommand
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player

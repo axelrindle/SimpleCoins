@@ -1,6 +1,7 @@
 package de.axelrindle.simplecoins.command
 
 import de.axelrindle.simplecoins.CoinManager
+import de.axelrindle.simplecoins.command.util.CoinCommand
 
 /**
  * Command for removing an amount of coins from a player's balance.

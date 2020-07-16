@@ -1,6 +1,7 @@
 package de.axelrindle.simplecoins.command
 
 import de.axelrindle.simplecoins.CoinManager
+import de.axelrindle.simplecoins.command.util.CoinCommand
 
 /**
  * Command for setting the amount of coins of a player to a new value.

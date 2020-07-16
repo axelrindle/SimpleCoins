@@ -1,6 +1,7 @@
 package de.axelrindle.simplecoins.command
 
 import de.axelrindle.simplecoins.CoinManager
+import de.axelrindle.simplecoins.command.util.CoinCommand
 
 /**
  * Command for adding an amount of coins to a player's balance.
