@@ -1,5 +1,6 @@
 package de.axelrindle.simplecoins
 
+import com.mysql.cj.jdbc.MysqlDataSource
 import de.axelrindle.pocketknife.PocketConfig
 import de.axelrindle.simplecoins.manage.FileManager
 import de.axelrindle.simplecoins.manage.IManager
@@ -9,7 +10,6 @@ import io.requery.sql.KotlinConfiguration
 import io.requery.sql.KotlinEntityDataStore
 import io.requery.sql.SchemaModifier
 import io.requery.sql.TableCreationMode
-import org.apache.commons.dbcp2.BasicDataSource
 import java.io.Closeable
 
 @Entity
@@ -64,10 +64,10 @@ object CoinManager : Closeable {
 
         // establish connection
         Class.forName("com.mysql.jdbc.Driver")
-        val dataSource = BasicDataSource().apply {
-            url = "jdbc:mysql://$host:$port/$dbName"
-            username = user
-            password = pass
+        val dataSource = MysqlDataSource().apply {
+            setUrl("jdbc:mysql://$host:$port/$dbName")
+            setUser(user)
+            setPassword(pass)
         }
         dbConfig = KotlinConfiguration(dataSource = dataSource, model = Models.DEFAULT)
         dbStore = KotlinEntityDataStore(dbConfig!!)
