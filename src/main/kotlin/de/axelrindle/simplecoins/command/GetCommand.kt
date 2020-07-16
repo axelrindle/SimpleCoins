@@ -1,19 +1,16 @@
 package de.axelrindle.simplecoins.command
 
-import de.axelrindle.pocketknife.PocketCommand
-import de.axelrindle.pocketknife.util.UUIDUtils
 import de.axelrindle.pocketknife.util.sendMessageF
 import de.axelrindle.simplecoins.CoinManager
 import de.axelrindle.simplecoins.SimpleCoins
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import java.util.function.Consumer
 
 /**
  * Command for retrieving the amount of coins for a given player.
  */
-internal class GetCommand : PocketCommand() {
+internal class GetCommand : CoinCommand() {
 
     override fun getName(): String {
         return "get"
@@ -38,20 +35,16 @@ internal class GetCommand : PocketCommand() {
         }
 
         val targetName = if (args.isNotEmpty()) args[0] else sender.name
+        val player = validate(args, sender) ?: return true
+
         val currency = CoinManager.getCurrentName()
-        UUIDUtils.lookup(targetName, Consumer {
-            if (it == null){
-                sender.sendMessageF("&cNo player found with name '$targetName'")
-                return@Consumer
-            }
-            val got = CoinManager.getCoins(it.toString())
-            sender.sendMessageF("${SimpleCoins.prefix} The player &a$targetName &rcurrently has &a$got $currency&r.")
-        })
+        val got = CoinManager.getCoins(player.uniqueId.toString())
+        sender.sendMessageF("${SimpleCoins.prefix} The player &a$targetName &rcurrently has &a$got $currency&r.")
 
         return true
     }
 
-    override fun sendHelp(sender: CommandSender) {
-        sender.sendMessage(getUsage())
+    override fun validateArguments(args: Array<out String>): Boolean {
+        return args.size in 0..1
     }
 }
