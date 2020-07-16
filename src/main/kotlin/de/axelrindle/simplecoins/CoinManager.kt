@@ -68,6 +68,7 @@ object CoinManager : Closeable {
             setUrl("jdbc:mysql://$host:$port/$dbName")
             setUser(user)
             setPassword(pass)
+            serverTimezone = "UTC"
         }
         dbConfig = KotlinConfiguration(dataSource = dataSource, model = Models.DEFAULT)
         dbStore = KotlinEntityDataStore(dbConfig!!)
