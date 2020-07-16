@@ -31,8 +31,6 @@ class SimpleCoins : JavaPlugin() {
             throw IllegalStateException("Plugin has already been initialized!")
         instance = this
 
-        logger.info("Initializing...")
-
         // config init
         logger.info("Loading configuration...")
         try {
