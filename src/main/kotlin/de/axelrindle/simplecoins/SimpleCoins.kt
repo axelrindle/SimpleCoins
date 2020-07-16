@@ -2,6 +2,7 @@ package de.axelrindle.simplecoins
 
 import de.axelrindle.pocketknife.PocketCommand
 import de.axelrindle.pocketknife.PocketConfig
+import de.axelrindle.pocketknife.PocketLang
 import de.axelrindle.simplecoins.command.SimpleCoinsCommand
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
@@ -25,6 +26,7 @@ class SimpleCoins : JavaPlugin() {
     }
 
     internal val pocketConfig: PocketConfig = PocketConfig(this)
+    internal val pocketLang = PocketLang(this, pocketConfig)
 
     override fun onEnable() {
         if (instance != null)
@@ -41,6 +43,11 @@ class SimpleCoins : JavaPlugin() {
             Bukkit.getPluginManager().disablePlugin(this)
             return
         }
+
+        // localization
+        logger.info("Loading localization...")
+        pocketLang.addLanguages("en")
+        pocketLang.init()
 
         // database init
         logger.info("Loading CoinManager...")
