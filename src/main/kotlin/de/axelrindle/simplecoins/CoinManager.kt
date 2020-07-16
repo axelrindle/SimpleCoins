@@ -28,7 +28,7 @@ interface CoinUser : Persistable {
  */
 object CoinManager : Closeable {
 
-    internal var pocketConfig: PocketConfig? = null
+    private var pocketConfig: PocketConfig? = null
     private var shouldUseSql = false
     private var manager: IManager? = null
 
@@ -36,7 +36,7 @@ object CoinManager : Closeable {
     internal var dbStore: KotlinEntityDataStore<CoinUser>? = null
 
     internal fun init(pocketConfig: PocketConfig) {
-        CoinManager.pocketConfig = pocketConfig
+        this.pocketConfig = pocketConfig
         shouldUseSql = pocketConfig.access("config")!!.getBoolean("Database.UseSQL")
 
         if (shouldUseSql)

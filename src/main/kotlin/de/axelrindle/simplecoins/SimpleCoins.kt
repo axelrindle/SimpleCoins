@@ -66,7 +66,7 @@ class SimpleCoins : JavaPlugin() {
         if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
             server.servicesManager.register(
                     Economy::class.java,
-                    SimpleCoinsEconomy(),
+                    SimpleCoinsEconomy(pocketConfig),
                     this,
                     ServicePriority.Normal
             )

@@ -1,11 +1,14 @@
 package de.axelrindle.simplecoins
 
+import de.axelrindle.pocketknife.PocketConfig
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
 
 @Suppress("OverridingDeprecatedMember")
-internal class SimpleCoinsEconomy : Economy {
+internal class SimpleCoinsEconomy(
+        private val pocketConfig: PocketConfig
+) : Economy {
     //region General
 
     override fun isEnabled(): Boolean {
@@ -21,11 +24,11 @@ internal class SimpleCoinsEconomy : Economy {
     }
 
     override fun currencyNameSingular(): String {
-        return CoinManager.pocketConfig!!.access("config")!!.getString("CoinsName")!!
+        return pocketConfig.access("config")!!.getString("CoinsName")!!
     }
 
     override fun currencyNamePlural(): String {
-        return CoinManager.pocketConfig!!.access("config")!!.getString("CoinsName")!!
+        return pocketConfig.access("config")!!.getString("CoinsName")!!
     }
 
     override fun format(amount: Double): String {
