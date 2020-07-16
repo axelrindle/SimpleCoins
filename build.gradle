@@ -58,3 +58,17 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 artifacts {
     archives sourcesJar
 }
+
+task copyToServer(type: Copy) {
+    def dir = System.getenv("PLUGINS_DIR")
+    if (dir == null) return true
+
+    from("build/libs") {
+        include "${project.name}-${project.version}.jar"
+    }
+    into dir
+}
+
+assemble {
+    finalizedBy copyToServer
+}
