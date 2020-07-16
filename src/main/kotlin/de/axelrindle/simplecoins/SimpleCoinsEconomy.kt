@@ -4,6 +4,7 @@ import de.axelrindle.pocketknife.PocketConfig
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
+import kotlin.math.abs
 
 @Suppress("OverridingDeprecatedMember")
 internal class SimpleCoinsEconomy(
@@ -112,7 +113,7 @@ internal class SimpleCoinsEconomy(
     }
 
     override fun depositPlayer(player: OfflinePlayer, amount: Double): EconomyResponse {
-        CoinManager.addCoins(player.uniqueId.toString(), Math.abs(amount))
+        CoinManager.addCoins(player.uniqueId.toString(), abs(amount))
         return EconomyResponse(
                 amount,
                 getBalance(player),
@@ -126,7 +127,7 @@ internal class SimpleCoinsEconomy(
     }
 
     override fun depositPlayer(player: OfflinePlayer, world: String, amount: Double): EconomyResponse {
-        CoinManager.addCoins(player.uniqueId.toString(), Math.abs(amount))
+        CoinManager.addCoins(player.uniqueId.toString(), abs(amount))
         return EconomyResponse(
                 amount,
                 getBalance(player),
@@ -140,7 +141,7 @@ internal class SimpleCoinsEconomy(
     }
 
     override fun withdrawPlayer(player: OfflinePlayer, amount: Double): EconomyResponse {
-        CoinManager.removeCoins(player.uniqueId.toString(), Math.abs(amount))
+        CoinManager.removeCoins(player.uniqueId.toString(), abs(amount))
         return EconomyResponse(
                 amount,
                 getBalance(player),
@@ -154,7 +155,7 @@ internal class SimpleCoinsEconomy(
     }
 
     override fun withdrawPlayer(player: OfflinePlayer, world: String, amount: Double): EconomyResponse {
-        CoinManager.removeCoins(player.uniqueId.toString(), Math.abs(amount))
+        CoinManager.removeCoins(player.uniqueId.toString(), abs(amount))
         return EconomyResponse(
                 amount,
                 getBalance(player),
