@@ -64,10 +64,11 @@ object CoinManager : Closeable {
 
         // establish connection
         Class.forName("com.mysql.jdbc.Driver")
-        val dataSource = BasicDataSource()
-        dataSource.url = "jdbc:mysql://$host:$port/$dbName"
-        dataSource.username = user
-        dataSource.password = pass
+        val dataSource = BasicDataSource().apply {
+            url = "jdbc:mysql://$host:$port/$dbName"
+            username = user
+            password = pass
+        }
         dbConfig = KotlinConfiguration(dataSource = dataSource, model = Models.DEFAULT)
         dbStore = KotlinEntityDataStore(dbConfig!!)
 
