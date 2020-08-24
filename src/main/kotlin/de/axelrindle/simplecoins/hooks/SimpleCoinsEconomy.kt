@@ -1,6 +1,7 @@
-package de.axelrindle.simplecoins
+package de.axelrindle.simplecoins.hooks
 
 import de.axelrindle.pocketknife.PocketConfig
+import de.axelrindle.simplecoins.CoinManager
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer

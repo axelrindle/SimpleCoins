@@ -4,6 +4,7 @@ import de.axelrindle.pocketknife.PocketCommand
 import de.axelrindle.pocketknife.PocketConfig
 import de.axelrindle.pocketknife.PocketLang
 import de.axelrindle.simplecoins.command.SimpleCoinsCommand
+import de.axelrindle.simplecoins.hooks.SimpleCoinsEconomy
 import de.axelrindle.simplecoins.hooks.SimpleCoinsPlaceholderExpansion
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
