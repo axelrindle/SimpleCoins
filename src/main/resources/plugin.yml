@@ -2,7 +2,7 @@ name: SimpleCoins
 version: @VERSION@
 main: de.axelrindle.simplecoins.SimpleCoins
 depend: [PocketKnife]
-softdepend: [Vault]
+softdepend: [PlaceholderAPI, Vault]
 website: http://dev.bukkit.org/projects/simplecoins/
 commands:
   simplecoins:

@@ -4,6 +4,7 @@ import de.axelrindle.pocketknife.PocketCommand
 import de.axelrindle.pocketknife.PocketConfig
 import de.axelrindle.pocketknife.PocketLang
 import de.axelrindle.simplecoins.command.SimpleCoinsCommand
+import de.axelrindle.simplecoins.hooks.SimpleCoinsPlaceholderExpansion
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.plugin.ServicePriority
@@ -53,8 +54,9 @@ class SimpleCoins : JavaPlugin() {
         logger.info("Loading CoinManager...")
         CoinManager.init(pocketConfig)
 
-        // vault connection
+        // hook into other plugins
         connectToVault()
+        connectToPlaceholderApi()
 
         // register command
         PocketCommand.register(this, SimpleCoinsCommand())
@@ -80,4 +82,16 @@ class SimpleCoins : JavaPlugin() {
             logger.info("Connected to Vault.")
         }
     }
+
+    private fun connectToPlaceholderApi() {
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            if (SimpleCoinsPlaceholderExpansion(this).register()) {
+                logger.info("Connected to PlaceholderAPI.")
+            } else {
+                logger.warning("Failed to connect to PlaceholderAPI!")
+            }
+        }
+    }
+
+
 }
