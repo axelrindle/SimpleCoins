@@ -11,7 +11,11 @@
 
 ## Dependencies
 
-- [PocketKnife](https://github.com/axelrindle/PocketKnife/)
+| Dependency                                                         | Version  | Required |
+| ------------------------------------------------------------------ |:--------:|:--------:|
+| [PocketKnife](https://github.com/axelrindle/PocketKnife/)          | >=2.0.0  | **Yes**  |
+| [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI) | >=2.10.0 | No       |
+| [Vault](https://github.com/MilkBowl/Vault)                         | 1.7      | No       |
 
 ## License
 
