@@ -8,9 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 
 - Localization
-
 - `/sc sync` for synchronizing the database
-
 - Dependency on [PocketKnife v2.0.0](https://github.com/axelrindle/PocketKnife/releases/tag/2.0.0)
 
 ### Fixed
@@ -34,7 +32,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 
 - Command to reload the configuration
-
 - Two new messages (`NoPermission` and `Reload`)
 
 ### Changed
@@ -50,5 +47,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 
 - Balances can be stored either local or in a MySQL database
-
 - Commands: `add`, `set`, `get`, `remote`
