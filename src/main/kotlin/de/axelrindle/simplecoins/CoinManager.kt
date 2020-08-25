@@ -11,6 +11,7 @@ import io.requery.sql.KotlinEntityDataStore
 import io.requery.sql.SchemaModifier
 import io.requery.sql.TableCreationMode
 import java.io.Closeable
+import javax.sql.DataSource
 
 @Entity
 @Table(name = "SimpleCoins")
@@ -34,6 +35,7 @@ object CoinManager : Closeable {
 
     private var dbConfig: KotlinConfiguration? = null
     internal var dbStore: KotlinEntityDataStore<CoinUser>? = null
+    internal var dataSource: DataSource? = null
 
     internal fun init(pocketConfig: PocketConfig) {
         this.pocketConfig = pocketConfig
@@ -48,6 +50,7 @@ object CoinManager : Closeable {
     override fun close() {
         dbStore?.close()
 
+        dataSource = null
         dbConfig = null
         dbStore = null
         manager = null
@@ -64,17 +67,17 @@ object CoinManager : Closeable {
 
         // establish connection
         Class.forName("com.mysql.jdbc.Driver")
-        val dataSource = MysqlDataSource().apply {
+        dataSource = MysqlDataSource().apply {
             setUrl("jdbc:mysql://$host:$port/$dbName")
             setUser(user)
             setPassword(pass)
             serverTimezone = "UTC"
         }
-        dbConfig = KotlinConfiguration(dataSource = dataSource, model = Models.DEFAULT)
+        dbConfig = KotlinConfiguration(dataSource = dataSource!!, model = Models.DEFAULT)
         dbStore = KotlinEntityDataStore(dbConfig!!)
 
         // create table(s)
-        SchemaModifier(dataSource, Models.DEFAULT)
+        SchemaModifier(dataSource!!, Models.DEFAULT)
                 .createTables(TableCreationMode.CREATE_NOT_EXISTS)
 
         // instantiate an SQLManager

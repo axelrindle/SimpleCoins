@@ -18,7 +18,8 @@ internal class SimpleCoinsCommand : LocalizedCommand() {
             SetCommand(),
             AddCommand(),
             RemoveCommand(),
-            ReloadCommand()
+            ReloadCommand(),
+            SyncCommand()
     )
 
     override fun sendHelp(sender: CommandSender) {
