@@ -9,8 +9,8 @@ internal class SQLManager : IManager {
     override fun addPlayer(uuid: String): Boolean {
         if (hasPlayer(uuid)) return false
 
-        CoinManager.dbStore!!.data
-                .insert(CoinUser::class.java)
+        CoinManager.dbStore!!
+                .insert(CoinUser::class)
                 .value(CoinUserEntity.AMOUNT, 0.0)
                 .value(CoinUserEntity.UUID, uuid)
                 .get()
@@ -19,8 +19,8 @@ internal class SQLManager : IManager {
     }
 
     override fun hasPlayer(uuid: String): Boolean {
-        return CoinManager.dbStore!!.data
-                .select(CoinUser::class.java)
+        return CoinManager.dbStore!!
+                .select(CoinUser::class)
                 .where(CoinUserEntity.UUID.eq(uuid))
                 .get()
                 .firstOrNull() != null
@@ -30,8 +30,8 @@ internal class SQLManager : IManager {
     override fun getCoins(uuid: String): Double {
         if (!hasPlayer(uuid)) addPlayer(uuid)
 
-        return CoinManager.dbStore!!.data
-                .select(CoinUser::class.java)
+        return CoinManager.dbStore!!
+                .select(CoinUser::class)
                 .where(CoinUserEntity.UUID.eq(uuid))
                 .get()
                 .firstOrNull()
@@ -44,8 +44,8 @@ internal class SQLManager : IManager {
 
         if (!hasPlayer(uuid)) addPlayer(uuid)
 
-        CoinManager.dbStore!!.data
-                .update(CoinUser::class.java)
+        CoinManager.dbStore!!
+                .update(CoinUser::class)
                 .set(CoinUserEntity.AMOUNT, amount)
                 .where(CoinUserEntity.UUID.eq(uuid))
                 .get().value()
