@@ -11,10 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MYSQL_TEST_HOST: localhost
-      MYSQL_TEST_PORT: 3800
+      MYSQL_TEST_PORT: 3306
       MYSQL_TEST_DB: minecraft
       MYSQL_TEST_USER: root
-      MYSQL_TEST_PASSWORD: supersecrettestpassword
+      MYSQL_TEST_PASSWORD: root
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+            MYSQL_ALLOW_EMPTY_PASSWORD: yes
+            MYSQL_DATABASE: minecraft
+        ports:
+            - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
     - uses: actions/checkout@v2.3.1
     - name: Set up JDK 1.8
@@ -29,16 +38,6 @@ jobs:
         restore-keys: ${{ runner.os }}-gradle
     - name: Build project
       run: ./gradlew build -x test
-    - name: Create MySQL database
-      uses: mirromutth/mysql-action@v1.1
-      with:
-        host port: ${{ env.MYSQL_TEST_PORT }}
-        container port: 3307
-        character set server: 'utf8'
-        collation server: 'utf8_general_ci'
-        mysql version: '8.0'
-        mysql database: ${{ env.MYSQL_TEST_DB }}
-        mysql root password: ${{ env.MYSQL_TEST_PASSWORD }}
     - name: Run tests
       run: ./gradlew test
     - name: Run codacy-coverage-reporter
