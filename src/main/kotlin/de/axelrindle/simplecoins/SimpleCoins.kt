@@ -8,16 +8,29 @@ import de.axelrindle.simplecoins.hooks.SimpleCoinsEconomy
 import de.axelrindle.simplecoins.hooks.SimpleCoinsPlaceholderExpansion
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
+import org.bukkit.plugin.PluginDescriptionFile
 import org.bukkit.plugin.ServicePriority
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.plugin.java.JavaPluginLoader
+import org.jetbrains.annotations.NotNull
+import java.io.File
 import java.io.IOException
 
 /**
  * Main plugin class.
  */
-class SimpleCoins : JavaPlugin() {
+class SimpleCoins : JavaPlugin {
+
+    constructor() : super()
+    constructor(
+            loader: @NotNull JavaPluginLoader,
+            description: @NotNull PluginDescriptionFile,
+            dataFolder: @NotNull File,
+            file: File?
+    ) : super(loader, description, dataFolder, File(System.getProperty("user.dir", PLUGIN_FILE)))
 
     companion object {
+        private const val PLUGIN_FILE = "src/main/kotlin/de/axelrindle/simplecoins/SimpleCoins.kt"
         const val prefix = "§6SimpleCoins §r>"
 
         private var instance: SimpleCoins? = null
