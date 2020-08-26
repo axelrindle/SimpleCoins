@@ -38,4 +38,9 @@ class CoinManagerTest : StringSpec({
     "removeCoins() should return 0 with a value greater than the actual amount" {
         CoinManager.removeCoins(uuid, 1000.0) shouldBe 0.0
     }
+
+    "addCoins() should return 10 and then 20 when the account exists" {
+        CoinManager.addCoins(uuid, 10.0) shouldBe 10.0
+        CoinManager.addCoins(uuid, 10.0) shouldBe 20.0
+    }
 })
