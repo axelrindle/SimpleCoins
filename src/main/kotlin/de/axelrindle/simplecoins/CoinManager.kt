@@ -66,7 +66,6 @@ object CoinManager : Closeable {
         val pass = config.getString("Password")
 
         // establish connection
-        Class.forName("com.mysql.jdbc.Driver")
         dataSource = MysqlDataSource().apply {
             setUrl("jdbc:mysql://$host:$port/$dbName")
             setUser(user)
