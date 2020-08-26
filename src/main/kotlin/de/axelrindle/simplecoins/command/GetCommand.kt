@@ -23,8 +23,8 @@ internal class GetCommand : CoinCommand() {
         return "/simplecoins get [player]"
     }
 
-    override fun getPermission(): String {
-        return "simplecoins.get"
+    override fun getPermission(): String? {
+        return null
     }
 
     override fun handle(sender: CommandSender, command: Command, args: Array<out String>): Boolean {
@@ -34,6 +34,11 @@ internal class GetCommand : CoinCommand() {
         }
 
         val targetName = if (args.isNotEmpty()) args[0] else sender.name
+        val permission = if (targetName == sender.name) "simplecoins.get.self" else "simplecoins.get.other"
+        if (!sender.hasPermission(permission)) {
+            sender.sendMessageF(messageNoPermission()!!)
+            return true
+        }
         val player = validate(args, sender) ?: return true
 
         val currency = CoinManager.getCurrentName()
