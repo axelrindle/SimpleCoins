@@ -28,7 +28,7 @@ internal class SQLManager : IManager {
 
     @Suppress("USELESS_ELVIS")
     override fun getCoins(uuid: String): Double {
-        if (!hasPlayer(uuid)) addPlayer(uuid)
+        if (!hasPlayer(uuid)) return 0.0
 
         return CoinManager.dbStore!!
                 .select(CoinUser::class)
