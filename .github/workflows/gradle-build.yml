@@ -9,12 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      MYSQL_TEST_HOST: localhost
-      MYSQL_TEST_PORT: 3306
-      MYSQL_TEST_DB: minecraft
-      MYSQL_TEST_USER: root
-      MYSQL_TEST_PASSWORD: root
     services:
       mysql:
         image: mysql:8.0
@@ -40,6 +34,12 @@ jobs:
       run: ./gradlew build -x test
     - name: Run tests
       run: ./gradlew test
+      env:
+        MYSQL_TEST_HOST: localhost
+        MYSQL_TEST_PORT: ${{ job.services.mysql.ports[3306] }}
+        MYSQL_TEST_DB: minecraft
+        MYSQL_TEST_USER: root
+        MYSQL_TEST_PASSWORD: root
     - name: Run codacy-coverage-reporter
       uses: codacy/codacy-coverage-reporter-action@master
       with:
