@@ -18,6 +18,8 @@ object TestInit : ProjectListener, AbstractProjectConfig() {
         server.addPlayer("lalo5").apply {
             isOp = true
         }
+        server.addPlayer()
+        server.addPlayer()
     }
 
     override suspend fun afterProject() {
