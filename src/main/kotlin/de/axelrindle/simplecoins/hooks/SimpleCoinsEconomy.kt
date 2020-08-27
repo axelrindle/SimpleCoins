@@ -11,6 +11,11 @@ import kotlin.math.abs
 internal class SimpleCoinsEconomy(
         private val pocketConfig: PocketConfig
 ) : Economy {
+
+    companion object {
+        private const val DEPRECATION_MESSAGE_PLAYER_NAME = "Player names may change. Use UUIDs instead."
+    }
+
     //region General
 
     override fun isEnabled(): Boolean {
@@ -47,14 +52,26 @@ internal class SimpleCoinsEconomy(
         return getBalance(player)
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("getBalance(player: OfflinePlayer)")
+    )
     override fun getBalance(playerName: String): Double {
         return 0.0
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("getBalance(player: OfflinePlayer, world: String)")
+    )
     override fun getBalance(playerName: String, world: String): Double {
         return 0.0
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("has(player: OfflinePlayer, amount: Double)")
+    )
     override fun has(playerName: String, amount: Double): Boolean {
         return false
     }
@@ -63,6 +80,10 @@ internal class SimpleCoinsEconomy(
         return CoinManager.getCoins(player.uniqueId.toString()) >= amount
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("has(player: OfflinePlayer, world: String, amount: Double)")
+    )
     override fun has(playerName: String, world: String, amount: Double): Boolean {
         return false
     }
@@ -77,10 +98,18 @@ internal class SimpleCoinsEconomy(
         return CoinManager.hasPlayer(player.uniqueId.toString())
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("hasAccount(player: OfflinePlayer)")
+    )
     override fun hasAccount(playerName: String): Boolean {
         return false
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("hasAccount(player: OfflinePlayer, world: String)")
+    )
     override fun hasAccount(playerName: String, world: String): Boolean {
         return false
     }
@@ -89,6 +118,10 @@ internal class SimpleCoinsEconomy(
         return CoinManager.hasPlayer(player.uniqueId.toString())
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("createPlayerAccount(player: OfflinePlayer)")
+    )
     override fun createPlayerAccount(playerName: String): Boolean {
         return false
     }
@@ -98,6 +131,10 @@ internal class SimpleCoinsEconomy(
         return true
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("createPlayerAccount(player: OfflinePlayer, world: String)")
+    )
     override fun createPlayerAccount(playerName: String, world: String): Boolean {
         return false
     }
@@ -109,6 +146,11 @@ internal class SimpleCoinsEconomy(
     //endregion
 
     //region Transactions
+
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("depositPlayer(player: OfflinePlayer, amount: Double)")
+    )
     override fun depositPlayer(playerName: String, amount: Double): EconomyResponse? {
         return null
     }
@@ -123,6 +165,10 @@ internal class SimpleCoinsEconomy(
         )
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("depositPlayer(player: OfflinePlayer, world: String, amount: Double)")
+    )
     override fun depositPlayer(playerName: String, world: String, amount: Double): EconomyResponse? {
         return null
     }
@@ -137,6 +183,10 @@ internal class SimpleCoinsEconomy(
         )
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("withdrawPlayer(player: OfflinePlayer, amount: Double)")
+    )
     override fun withdrawPlayer(playerName: String, amount: Double): EconomyResponse? {
         return null
     }
@@ -151,6 +201,10 @@ internal class SimpleCoinsEconomy(
         )
     }
 
+    @Deprecated(
+            DEPRECATION_MESSAGE_PLAYER_NAME,
+            ReplaceWith("withdrawPlayer(player: OfflinePlayer, world: String, amount: Double)")
+    )
     override fun withdrawPlayer(playerName: String, world: String, amount: Double): EconomyResponse? {
         return null
     }
