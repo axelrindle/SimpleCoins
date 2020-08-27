@@ -21,6 +21,16 @@ object TestInit : ProjectListener, AbstractProjectConfig() {
     }
 
     override suspend fun afterProject() {
+        // print player chat
+        println("------------------ Player Chat ------------------")
+        val player = MockBukkit.getMock().getPlayer(0)
+        var msg: String? = ""
+        while(msg != null) {
+            println(msg)
+            msg = player.nextMessage()
+        }
+        println("-------------------------------------------------")
+
         MockBukkit.unmock()
     }
 
