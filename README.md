@@ -18,6 +18,15 @@
 | [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI) | >=2.10.0 | No       |
 | [Vault](https://github.com/MilkBowl/Vault)                         | 1.7      | No       |
 
+## Features
+
+- Easy to use
+- Localization
+- Data is stored in YML or MySQL
+- Backend synchronization (sync from local to remote or vice versa)
+- No negative balances
+- Integrates with other plugins: PlaceholderAPI, Vault
+
 ## License
 
 [MIT](LICENSE)
