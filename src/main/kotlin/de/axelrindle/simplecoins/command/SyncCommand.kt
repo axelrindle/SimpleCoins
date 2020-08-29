@@ -16,7 +16,6 @@ internal class SyncCommand : PocketCommand() {
     companion object {
         private const val CONFIRM_TIMEOUT = 60 // seconds
 
-        private val validDestinations = listOf("local", "remote")
         private val validConfirmations = listOf("cancel", "confirm")
 
         private var task: SyncTask? = null
@@ -82,7 +81,7 @@ internal class SyncCommand : PocketCommand() {
                 sender.sendMessageF("${SimpleCoins.prefix} Synchronization has been cancelled.")
                 return true
             }
-        } else if (!validDestinations.contains(destination)) {
+        } else if (!SyncTask.VALID_DESTINATIONS.contains(destination)) {
             return sendDestinationHelp(sender)
         }
 

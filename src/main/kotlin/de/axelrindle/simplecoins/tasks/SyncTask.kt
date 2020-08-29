@@ -14,11 +14,20 @@ internal class SyncTask(
 
     companion object {
         private const val QUERY_LIMIT = 50
+        val VALID_DESTINATIONS = listOf("local", "remote")
     }
 
     private val logger = Logger.getLogger(javaClass.simpleName)
 
     var destination: String? = null
+        set(value) {
+            if (!VALID_DESTINATIONS.contains(value))
+                throw IllegalArgumentException("destination must be one of " +
+                        VALID_DESTINATIONS.joinToString(", ") + "!")
+
+            field = value
+        }
+
     var isRunning: Boolean = false
         private set
 
