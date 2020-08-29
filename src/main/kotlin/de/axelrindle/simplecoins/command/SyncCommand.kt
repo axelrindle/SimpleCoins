@@ -10,6 +10,7 @@ import org.bukkit.Sound
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import java.util.function.BiConsumer
 
 internal class SyncCommand : PocketCommand() {
 
@@ -41,15 +42,7 @@ internal class SyncCommand : PocketCommand() {
     }
 
     override fun handle(sender: CommandSender, command: Command, args: Array<out String>): Boolean {
-        if (task == null) task = SyncTask { result ->
-            if (result) {
-                sender.sendMessageF("${SimpleCoins.prefix} &aThe synchronization has finished.")
-            } else {
-                sender.sendMessageF("${SimpleCoins.prefix} &cSomething went wrong! " +
-                        "Check to console for more information.")
-            }
-            Bukkit.getScheduler().runTask(SimpleCoins.get(), Runnable { task = null })
-        }
+        if (task == null) task = SyncTask()
 
         // SQL connection must be established
         if (CoinManager.dbStore == null) {
@@ -77,7 +70,7 @@ internal class SyncCommand : PocketCommand() {
                 return true
             } else if (destination == "cancel") {
                 task!!.destination = null
-                cancel()
+                cancelConfirmation()
                 sender.sendMessageF("${SimpleCoins.prefix} Synchronization has been cancelled.")
                 return true
             }
@@ -106,8 +99,8 @@ internal class SyncCommand : PocketCommand() {
 
             // synchronize
             else -> {
-                cancel()
-                task!!.start()
+                cancelConfirmation()
+                task!!.run(BiConsumer { result, error -> completionCallback(sender, result, error) })
             }
         }
 
@@ -140,7 +133,7 @@ internal class SyncCommand : PocketCommand() {
             confirmTimeout = scheduleSyncDelayedTask(
                     SimpleCoins.get(),
                     {
-                        cancel()
+                        cancelConfirmation()
                         task!!.destination = null
                         sender.sendMessageF("${SimpleCoins.prefix} &cConfirm has timed out.")
                     },
@@ -149,7 +142,7 @@ internal class SyncCommand : PocketCommand() {
         }
     }
 
-    private fun cancel() {
+    private fun cancelConfirmation() {
         Bukkit.getScheduler().apply {
             if (confirmCountdown != null) {
                 cancelTask(confirmCountdown!!)
@@ -160,6 +153,19 @@ internal class SyncCommand : PocketCommand() {
                 confirmTimeout = null
             }
         }
+    }
+
+    private fun completionCallback(sender: CommandSender, result: Int, error: Throwable?) {
+        if (error == null) {
+            sender.sendMessageF("${SimpleCoins.prefix} &aThe synchronization has finished with " +
+                    "$result synchronized entries..")
+        } else {
+            error.printStackTrace()
+            sender.sendMessageF("${SimpleCoins.prefix} &cSomething went wrong: ${error.message}")
+            sender.sendMessageF("${SimpleCoins.prefix} &cCheck to console for more information.")
+        }
+        Bukkit.dispatchCommand(sender, "sc reload")
+        task = null
     }
 
     private fun sendDestinationHelp(sender: CommandSender): Boolean {

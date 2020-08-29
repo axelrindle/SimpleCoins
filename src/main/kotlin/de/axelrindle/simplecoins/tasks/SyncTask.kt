@@ -4,13 +4,14 @@ import de.axelrindle.simplecoins.*
 import io.requery.sql.SchemaModifier
 import io.requery.sql.TableCreationMode
 import org.bukkit.Bukkit
-import java.util.logging.Level
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
+import java.util.function.BiConsumer
+import java.util.function.Supplier
 import java.util.logging.Logger
 import kotlin.math.abs
 
-internal class SyncTask(
-        private val callback: (result: Boolean) -> Unit
-) : Thread("Database Synchronization") {
+internal class SyncTask {
 
     companion object {
         private const val QUERY_LIMIT = 50
@@ -35,27 +36,33 @@ internal class SyncTask(
         return destination != null
     }
 
-    override fun run() {
+    fun run(callback: BiConsumer<Int, Throwable?>?): CompletableFuture<Int> {
+        var future = CompletableFuture.supplyAsync(
+                handleAsync(),
+                Executor { Bukkit.getScheduler().runTaskAsynchronously(SimpleCoins.get(), it) }
+        )
+        if (callback != null) {
+            future = future.whenCompleteAsync(
+                    callback,
+                    Executor { Bukkit.getScheduler().runTask(SimpleCoins.get(), it) }
+            )
+        }
+        return future
+    }
+
+    private fun handleAsync() = Supplier {
         if (isRunning) throw IllegalStateException("Task already running!")
 
         isRunning = true
         logger.info("Synchronizing data to $destination...")
-        try {
-            val amount: Int = when (destination) {
-                "local" -> syncToLocal()
-                "remote" -> syncToRemote()
-                else -> -1
-            }
-            logger.info("Synchronized $amount entries.")
-            runSync { callback(true) }
-        } catch (e: Exception) {
-            runSync { callback(false) }
-            logger.log(Level.SEVERE, e) { "Something went wrong!" }
+        val amount: Int = when (destination) {
+            "local" -> syncToLocal()
+            "remote" -> syncToRemote()
+            else -> -1
         }
-    }
-
-    private fun runSync(block: () -> Unit) {
-        Bukkit.getScheduler().runTask(SimpleCoins.get(), block)
+        isRunning = false
+        logger.info("Synchronized $amount entries.")
+        amount
     }
 
     private fun syncToLocal(): Int {
