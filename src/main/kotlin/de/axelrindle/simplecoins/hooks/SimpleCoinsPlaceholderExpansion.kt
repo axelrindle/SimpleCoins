@@ -7,6 +7,9 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 
+/**
+ * A [PlaceholderExpansion] implementation to provide placeholders for the PlaceholderAPI.
+ */
 class SimpleCoinsPlaceholderExpansion(
         private val plugin: SimpleCoins
 ) : PlaceholderExpansion() {

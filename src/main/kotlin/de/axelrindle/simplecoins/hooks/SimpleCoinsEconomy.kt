@@ -7,6 +7,9 @@ import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
 import kotlin.math.abs
 
+/**
+ * An [Economy] implementation to be integrated with the VaultAPI.
+ */
 @Suppress("OverridingDeprecatedMember")
 internal class SimpleCoinsEconomy(
         private val pocketConfig: PocketConfig

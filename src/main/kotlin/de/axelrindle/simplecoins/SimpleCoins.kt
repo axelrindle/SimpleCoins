@@ -35,6 +35,9 @@ class SimpleCoins : JavaPlugin {
 
         private var instance: SimpleCoins? = null
 
+        /**
+         * @return The active [SimpleCoins] instance.
+         */
         fun get(): SimpleCoins {
             return instance!!
         }

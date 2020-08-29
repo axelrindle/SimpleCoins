@@ -13,6 +13,9 @@ import io.requery.sql.TableCreationMode
 import java.io.Closeable
 import javax.sql.DataSource
 
+/**
+ * Represents a player's balance in the database.
+ */
 @Entity
 @Table(name = "SimpleCoins")
 interface CoinUser : Persistable {
@@ -25,7 +28,7 @@ interface CoinUser : Persistable {
 }
 
 /**
- * The <b>CoinManager</b> is used to retrieve and modify the coin balances for a given player.
+ * The **CoinManager** is used to retrieve and modify the coin balances for a given player.
  */
 object CoinManager : Closeable {
 
