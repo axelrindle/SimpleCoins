@@ -1,0 +1,5 @@
+engines:
+  detekt:
+    enabled: true
+    exclude_paths:
+      - 'src/test/**/*'
