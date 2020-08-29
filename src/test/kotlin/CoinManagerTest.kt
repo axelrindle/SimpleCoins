@@ -1,7 +1,6 @@
 import de.axelrindle.simplecoins.CoinManager
 import de.axelrindle.simplecoins.Models
 import de.axelrindle.simplecoins.SimpleCoins
-import io.kotest.core.spec.DoNotParallelize
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.spec.style.stringSpec
 import io.kotest.matchers.shouldBe
@@ -10,8 +9,6 @@ import io.requery.sql.SchemaModifier
 import io.requery.sql.TableCreationMode
 import java.util.*
 
-@DoNotParallelize
-@Suppress("unused")
 class CoinManagerTest : StringSpec({
 
     val runner = fun (uuid: String, context: String) = stringSpec {
