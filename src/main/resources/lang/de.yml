@@ -1,4 +1,11 @@
 ---
+Commands:
+  Main: Verwalte das Konto eines Spielers.
+  Add: Fügt einem Spieler eine bestimmten Betrag auf sein Konto hinzu.
+  Remove: Zieht einem Spieler einen bestimmten Betrag von seinem Konto ab.
+  Get: Zeigt deinen eigenen Kontostand oder den eines anderen Spielers an.
+  Set: Ändert den absoluten Kontostand eines Spielers.
+  Reload: Lädt die Konfiguration neu.
 Words:
   Done: Fertig
   Help: Hilfe
