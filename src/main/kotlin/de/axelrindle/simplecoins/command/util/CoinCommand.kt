@@ -82,7 +82,7 @@ internal abstract class CoinCommand : LocalizedCommand() {
         // parse the amount argument
         val amount: Double
         try {
-            amount = args[1].toDouble()
+            amount = args[1].toDouble().coerceAtLeast(0.0)
         } catch (e: NumberFormatException) {
             sender.sendMessage("§c" + localize("Messages.Error.InvalidNumber", args[1]))
             return true
