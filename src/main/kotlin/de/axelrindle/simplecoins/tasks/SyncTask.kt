@@ -72,22 +72,24 @@ internal class SyncTask {
         var offset = 0
 
         logger.info("$count entries will be written to local file in $iterations iteration(s)...")
-        repeat(iterations) { iteration ->
-            logger.info("Iteration ${iteration + 1}...")
-            val remoteList = CoinManager.dbStore!!
-                    .select(CoinUser::class)
-                    .limit(QUERY_LIMIT)
-                    .offset(offset)
-                    .get()
-            SimpleCoins.get().pocketConfig.edit("database") { config ->
+
+        SimpleCoins.get().pocketConfig.edit("database") { config ->
+            repeat(iterations) { iteration ->
+                logger.info("Iteration ${iteration + 1}...")
+                val remoteList = CoinManager.dbStore!!
+                        .select(CoinUser::class)
+                        .limit(QUERY_LIMIT)
+                        .offset(offset)
+                        .get()
+
                 remoteList.each { user ->
                     config[user.uuid] = user.amount
                 }
-            }
-            remoteList.close()
+                remoteList.close()
 
-            // increase offset by limit after each iteration
-            offset += QUERY_LIMIT
+                // increase offset by limit after each iteration
+                offset += QUERY_LIMIT
+            }
         }
 
         return count
