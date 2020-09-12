@@ -64,7 +64,7 @@ class SimpleCoins : JavaPlugin {
 
         // localization
         logger.info("Loading localization...")
-        pocketLang.addLanguages("en")
+        pocketLang.addLanguages("en", "de")
         pocketLang.init()
 
         // database init
