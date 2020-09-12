@@ -9,7 +9,7 @@ import java.util.concurrent.Executor
 import java.util.function.BiConsumer
 import java.util.function.Supplier
 import java.util.logging.Logger
-import kotlin.math.abs
+import kotlin.math.ceil
 
 internal class SyncTask {
 
@@ -68,7 +68,7 @@ internal class SyncTask {
     private fun syncToLocal(): Int {
         val store = CoinManager.dbStore!!
         val count = store.count(CoinUser::class).get().value()
-        val iterations = if (count <= QUERY_LIMIT) 1 else abs(QUERY_LIMIT / count)
+        val iterations = if (count <= QUERY_LIMIT) 1 else ceil(count.toDouble() / QUERY_LIMIT).toInt()
         var offset = 0
 
         logger.info("$count entries will be written to local file in $iterations iteration(s)...")
