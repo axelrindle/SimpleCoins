@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - Localization
 - `/sc sync` for synchronizing the database
 - Dependency on [PocketKnife v2.0.0](https://github.com/axelrindle/PocketKnife/releases/tag/2.0.0)
+- Support for [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI)
 
 ### Fixed
 
